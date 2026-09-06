@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MHD Liberec Guesser Ultra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- LEAFLET MAPS CSS & JS PRO GEOGUESSR MÓD -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(15, 19, 29, 0.88);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --input-bg: #0b0e14;
+      --accent: #ffb703;
+      --accent-glow: rgba(255, 183, 3, 0.35);
+      --accent-hover: #ffa000;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --danger: #ff4757;
+      --danger-glow: rgba(255, 71, 87, 0.4);
+      --success: #2ed573;
+      --success-glow: rgba(46, 213, 115, 0.4);
+      --purple: #a55eea;
+      --p1-color: #00d2d3;
+      --p2-color: #ff9f43;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+      opacity: 0.35;
+      filter: brightness(0.7) blur(2px);
+      transition: opacity 0.6s ease, filter 0.6s ease;
+    }
+
+    body.in-game .bg-overlay {
+      opacity: 0.15;
+      filter: brightness(0.4) blur(4px);
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: 32px;
+      padding: 28px;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .app-card.combo-active {
+      border-color: #ff9f43;
+      box-shadow: 0 0 35px rgba(255, 159, 67, 0.4);
+    }
+
+    .shake { animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+    @keyframes shakeAnim {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(5px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-7px, 0, 0); }
+      40%, 60% { transform: translate3d(7px, 0, 0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .dpmlj-logo { height: 36px; width: auto; object-fit: contain; }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .btn-icon {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover { border-color: var(--accent); transform: scale(1.05); }
+
+    .stats-bar { display: flex; gap: 6px; }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .timer-badge { color: var(--danger); border-color: rgba(255, 71, 87, 0.2); }
+    .score-badge { color: var(--accent); border-color: rgba(255, 183, 3, 0.2); }
+    .streak-badge { color: #ff9f43; border-color: rgba(255, 159, 67, 0.2); }
+
+    .menu-screen { display: flex; flex-direction: column; gap: 16px; animation: fadeIn 0.4s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-banner { text-align: center; }
+    .menu-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .menu-subtitle { color: var(--text-muted); font-size: 0.85rem; }
+
+    .high-score-box {
+      background: rgba(255, 183, 3, 0.05);
+      border: 1px dashed rgba(255, 183, 3, 0.3);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .high-score-val { color: var(--accent); font-weight: 800; }
+
+    .achievements-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .ach-item {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      opacity: 0.3;
+      filter: grayscale(1);
+      transition: all 0.3s;
+    }
+
+    .ach-item.unlocked {
+      opacity: 1;
+      filter: grayscale(0);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(255,183,3,0.2);
+    }
+
+    .modes-grid { display: flex; flex-direction: column; gap: 10px; }
+
+    .btn-mode {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 14px 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-mode:hover {
+      border-color: rgba(255, 183, 3, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .mode-left { display: flex; align-items: center; gap: 14px; }
+    .mode-icon-box {
+      width: 40px; height: 40px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .mode-title { font-weight: 800; font-size: 0.95rem; text-align: left; }
+    .mode-desc { font-size: 0.75rem; color: var(--text-muted); text-align: left; }
+
+    .mode-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(255, 183, 3, 0.1);
+      color: var(--accent);
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 183, 3, 0.2);
+    }
+
+    .game-screen { display: none; flex-direction: column; animation: fadeIn 0.3s ease-out; }
+
+    .image-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      margin-bottom: 12px;
+      background: var(--input-bg);
+    }
+
+    .image-frame img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+    }
+
+    #mapContainer {
+      width: 100%;
+      height: 220px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 12px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .hint-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 8px;
+      min-height: 20px;
+    }
+
+    .controls { display: flex; flex-direction: column; gap: 10px; }
+    .input-row { display: flex; gap: 8px; }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .hint-btns { display: flex; gap: 6px; }
+
+    .btn-hint {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 0 12px;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .btn-hint:hover { border-color: var(--accent); background: rgba(255, 183, 3, 0.1); }
+
+    .btn-submit {
+      background: var(--accent);
+      color: #07090e;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      border: none;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .status-msg {
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      text-align: center;
+      min-height: 20px;
+      font-weight: 700;
+    }
+
+    .correct { color: var(--success); }
+    .wrong { color: var(--danger); }
+
+    .btn-back {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      margin-top: 12px;
+      align-self: center;
+    }
+
+    /* MULTIPLAYER STYLES */
+    .mp-container {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .mp-box {
+      flex: 1;
+      background: var(--input-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 16px;
+      padding: 10px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+    }
+
+    .mp-box.active-p1 { border-color: var(--p1-color); box-shadow: 0 0 20px rgba(0,210,211,0.3); }
+    .mp-box.active-p2 { border-color: var(--p2-color); box-shadow: 0 0 20px rgba(255,159,67,0.3); }
+
+    .mp-score { font-size: 1.3rem; font-weight: 800; }
+    .mp-key { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+
+    .game-over-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .go-title { font-size: 1.8rem; font-weight: 800; color: var(--danger); }
+    
+    .go-stats {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .go-stat-item { display: flex; flex-direction: column; align-items: center; }
+    .go-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+    .go-stat-lbl { font-size: 0.7rem; color: var(--text-muted); }
+
+    .summary-list {
+      width: 100%;
+      max-height: 160px;
+      overflow-y: auto;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .summary-item.ok { border-left: 3px solid var(--success); }
+    .summary-item.fail { border-left: 3px solid var(--danger); }
+  </style>
+</head>
+<body>
+
+<div class="bg-overlay" id="bgOverlay"></div>
+
+<div class="app-card" id="appCard">
+  <div class="header">
+    <div class="brand">
+      <img src="logo_velke.png" alt="DPMLJ Logo" class="dpmlj-logo">
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-icon" id="soundBtn" onclick="toggleSound()">🔊</button>
+      
+      <div class="stats-bar" id="statsBar" style="display: none;">
+        <div class="badge streak-badge">🔥 <span id="streak">0</span></div>
+        <div class="badge score-badge">⭐ <span id="score">0</span></div>
+        <div class="badge timer-badge" id="timerBadge">⏱️ <span id="timer">30</span>s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU KROK 1: VÝBĚR SEZNAMU ZASTÁVEK -->
+  <div id="categoryScreen" class="menu-screen">
+    <div class="hero-banner">
+      <h1 class="menu-title">Poznej zastávku</h1>
+      <p class="menu-subtitle">Vyber si okruh zastávek pro hru</p>
+    </div>
+
+    <div class="high-score-box">
+      <span>🏆 NEJVYŠŠÍ SKÓRE</span>
+      <span class="high-score-val" id="highScoreVal">0 PTS</span>
+    </div>
+
+    <div class="achievements-row">
+      <div class="ach-item" id="ach1" title="Odehraj 10 her">🥇 Srdcař DPMLJ</div>
+      <div class="ach-item" id="ach2" title="Uhádni zastávku do 3 sekund">⚡ Rychlík</div>
+      <div class="ach-item" id="ach3" title="Dosáhni streaku 10">🔥 Liberecký Guru</div>
+    </div>
+
+    <div class="modes-grid">
+      <button class="btn-mode" onclick="selectCategory('line22')">
+        <div class="mode-left">
+          <div class="mode-icon-box">🚌</div>
+          <div>
+            <div class="mode-title">Linka 22</div>
+            <div class="mode-desc">OC Nisa ➔ Kunratická sídliště</div>
+          </div>
+        </div>
+        <span class="mode-tag">BUS 22</span>
+      </button>
+
+      <button class="btn-mode" onclick="selectCategory('all')">
+        <div class="mode-left">
+          <div class="mode-icon-box">🪪</div>
+          <div>
+            <div class="mode-title">Všechny zastávky</div>
+            <div class="mode-desc">Kompletní síť Liberec & okolí</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: var(--purple); border-color: rgba(165,94,234,0.3);">VŠECHNO</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MENU KROK 2: VÝBĚR OBTÍŽNOSTI / HERNÍHO MÓDU -->
+  <div id="difficultyScreen" class="menu-screen" style="display: none;">
+    <div class="hero-banner">
+      <h1 class="menu-title">Herní Mód</h1>
+      <p class="menu-subtitle" id="selectedCategoryTitle">Vyber si styl hry</p>
+    </div>
+
+    <div class="modes-grid">
+      <button class="btn-mode" onclick="startGame('classic')">
+        <div class="mode-left">
+          <div class="mode-icon-box">⏱️</div>
+          <div>
+            <div class="mode-title">Klasik (30s)</div>
+            <div class="mode-desc">30s limit + psaní</div>
+          </div>
+        </div>
+        <span class="mode-tag">STANDARD</span>
+      </button>
+
+      <button class="btn-mode" onclick="startGame('geoguessr')">
+        <div class="mode-left">
+          <div class="mode-icon-box">🗺️</div>
+          <div>
+            <div class="mode-title">GeoGuessr Mód</div>
+            <div class="mode-desc">Klikni přesně na mapu Liberce podle fotky</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">MAPA</span>
+      </button>
+
+      <button class="btn-mode" onclick="startGame('chill')">
+        <div class="mode-left">
+          <div class="mode-icon-box">☕</div>
+          <div>
+            <div class="mode-title">Chill Mód</div>
+            <div class="mode-desc">Bez časovače, bez stresu</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">EASY</span>
+      </button>
+
+      <button class="btn-mode" onclick="startGame('sudden')">
+        <div class="mode-left">
+          <div class="mode-icon-box">💀</div>
+          <div>
+            <div class="mode-title">Sudden Death</div>
+            <div class="mode-desc">Jedna chyba = okamžitý konec</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #ff4757; border-color: rgba(255,71,87,0.3);">HARD</span>
+      </button>
+
+      <button class="btn-mode" onclick="startGame('mp')">
+        <div class="mode-left">
+          <div class="mode-icon-box">⚔️</div>
+          <div>
+            <div class="mode-title">Multiplayer 1v1</div>
+            <div class="mode-desc">Hráč 1 [A] vs Hráč 2 [L] na 1 PC</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #00d2d3; border-color: rgba(0,210,211,0.3);">2 HRÁČI</span>
+      </button>
+    </div>
+
+    <button class="btn-back" onclick="backToCategories()">ZPĚT NA VÝBĚR LINKY</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="game-screen">
+    <div class="image-frame">
+      <img id="stopImg" src="" alt="Zastávka">
+    </div>
+
+    <!-- MAPA PRO GEOGUESSR -->
+    <div id="mapContainer"></div>
+
+    <div class="hint-display" id="hintDisplay"></div>
+
+    <!-- MP UI BOX -->
+    <div class="mp-container" id="mpContainer" style="display: none;">
+      <div class="mp-box" id="p1Box">
+        <div style="color: var(--p1-color); font-weight:800;">HRÁČ 1</div>
+        <div class="mp-score" id="p1Score">0</div>
+        <div class="mp-key">ZMÁČKNI [A] PRO TIP</div>
+      </div>
+      <div class="mp-box" id="p2Box">
+        <div style="color: var(--p2-color); font-weight:800;">HRÁČ 2</div>
+        <div class="mp-score" id="p2Score">0</div>
+        <div class="mp-key">ZMÁČKNI [L] PRO TIP</div>
+      </div>
+    </div>
+
+    <!-- OVLÁDÁNÍ PRO TEXT MÓDY -->
+    <div class="controls" id="textControls">
+      <div class="input-row">
+        <input type="text" id="guessInput" placeholder="Napiš název zastávky..." autocomplete="off">
+        <div class="hint-btns">
+          <button class="btn-hint" onclick="buyHint('text')" title="-50 bodů">💡 Písmena</button>
+          <button class="btn-hint" onclick="buyHint('zone')" title="-30 bodů">🎯 Okrsek</button>
+        </div>
+      </div>
+      <button class="btn-submit" onclick="submitGuess()">Odeslat tip</button>
+    </div>
+
+    <!-- OVLÁDÁNÍ PRO GEOGUESSR MÓD -->
+    <div class="controls" id="mapControls" style="display: none;">
+      <button class="btn-submit" onclick="submitMapGuess()">Potvrdit místo na mapě 📍</button>
+    </div>
+
+    <div id="statusMsg" class="status-msg"></div>
+    <button class="btn-back" onclick="backToMenu()">ESC / ZPĚT DO MENU</button>
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="gameOverScreen" class="game-over-screen">
+    <div class="go-title" id="goTitle">Konec hry! ⏰</div>
+
+    <div class="go-stats">
+      <div class="go-stat-item">
+        <span class="go-stat-val" id="goScore">0</span>
+        <span class="go-stat-lbl">SKÓRE</span>
+      </div>
+      <div class="go-stat-item">
+        <span class="go-stat-val" id="goStreak">0</span>
+        <span class="go-stat-lbl">MAX STREAK</span>
+      </div>
+    </div>
+
+    <p style="font-size: 0.8rem; color: var(--text-muted); align-self: start;">Přehled odehraných zastávek:</p>
+    <div class="summary-list" id="summaryList"></div>
+
+    <button class="btn-submit" style="width: 100%;" onclick="startGame(gameDifficulty)">Hrát znovu 🔄</button>
+    <button class="btn-back" onclick="backToMenu()">ZPĚT DO HLAVNÍHO MENU</button>
+  </div>
+</div>
+
+<script>
+  const bgImages = ['1.png', '2.png', '3.png', '4.png'];
+  
+  function setRandomBackground() {
+    const randomBg = bgImages[Math.floor(Math.random() * bgImages.length)];
+    document.getElementById('bgOverlay').style.backgroundImage = `url('${randomBg}')`;
+  }
+  setRandomBackground();
+
+  let soundEnabled = true;
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById("soundBtn").innerText = soundEnabled ? "🔊" : "🔇";
+  }
+
+  function playSound(type) {
+    if (!soundEnabled) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'tick') {
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    } else if (type === 'success') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+    } else if (type === 'fail') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    } else if (type === 'hint') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+    }
+  }
+
+  // AKTUALIZOVANÁ DATABÁZE SE ZADANÝMI SOUŘADNICEMI
+  const allStops = [
+    { image: "OCNisa1.png", answer: "OC Nisa", zone: "Nákupní zóna Jih", lat: 50.7412378, lng: 15.0516472, line22: true },
+    { image: "OCNisaKino.png", answer: "OC Nisa Kino", zone: "Nákupní zóna Jih", lat: 50.7419394, lng: 15.0456361, line22: true },
+    { image: "Kavkazska.png", answer: "Kavkazská", zone: "Sídliště Vesec / Rochlice", lat: 50.7437667, lng: 15.0371819, line22: true },
+    { image: "PrumzonaJIH.png", answer: "Průmyslová zóna Jih", zone: "Průmyslový obvod", lat: 50.7339478, lng: 15.0417461, line22: true },
+    { image: "USlunnehoPotoka.png", answer: "U Slunného potoka", zone: "Vesec", lat: 50.7359772, lng: 15.0373403, line22: true },
+    { image: "Prumyslova.png", answer: "Průmyslová", zone: "Průmyslový obvod", lat: 50.7430039, lng: 15.0360069, line22: true },
+    { image: "Banskobystricka.png", answer: "Banskobystrická", zone: "Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true },
+    { image: "Americka.png", answer: "Americká", zone: "Františkov", lat: 50.7578125, lng: 15.0337831, line22: false },
+    { image: "Domazlicka.png", answer: "Domažlická", zone: "Františkov", lat: 50.7569389, lng: 15.0315181, line22: false },
+    { image: "Husitska.png", answer: "Husitská", zone: "Janův Důl", lat: 50.7552606, lng: 15.0289144, line22: false },
+    { image: "Kubelikova.png", answer: "Kubelíkova", zone: "Janův Důl", lat: 50.7501717, lng: 15.0328664, line22: false }
+  ];
+
+  let activePool = [];
+  let selectedCategory = 'all';
+  let gameDifficulty = 'classic';
+  let currentLevel = null;
+  let score = 0;
+  let streak = 0;
+  let maxStreak = 0;
+  let timeLeft = 30;
+  let timerInterval;
+  let playedHistory = [];
+  let roundStartTime = 0;
+
+  // MP Proměnné
+  let p1Score = 0;
+  let p2Score = 0;
+  let activeMPPlayer = null;
+
+  // Leaflet Mapa
+  let map, userMarker, correctMarker, polyline;
+  let userSelectedCoords = null;
+
+  const appCard = document.getElementById("appCard");
+  const input = document.getElementById("guessInput");
+  const stopImg = document.getElementById("stopImg");
+
+  let highScore = localStorage.getItem("liberec_guesser_highscore") || 0;
+  let totalGamesPlayed = parseInt(localStorage.getItem("liberec_guesser_games") || 0);
+  
+  document.getElementById("highScoreVal").innerText = highScore + " PTS";
+  checkAchievements();
+
+  function checkAchievements() {
+    if (totalGamesPlayed >= 10) document.getElementById("ach1").classList.add("unlocked");
+    if (localStorage.getItem("ach_speed")) document.getElementById("ach2").classList.add("unlocked");
+    if (localStorage.getItem("ach_guru")) document.getElementById("ach3").classList.add("unlocked");
+  }
+
+  function initMap() {
+    if (!map) {
+      map = L.map('mapContainer').setView([50.7500, 15.0400], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      map.on('click', function(e) {
+        userSelectedCoords = e.latlng;
+        if (userMarker) map.removeLayer(userMarker);
+        userMarker = L.marker(e.latlng).addTo(map);
+      });
+    }
+    setTimeout(() => { map.invalidateSize(); }, 200);
+  }
+
+  function selectCategory(cat) {
+    selectedCategory = cat;
+    if (cat === 'line22') {
+      activePool = allStops.filter(s => s.line22);
+      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linka 22";
+    } else {
+      activePool = allStops;
+      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Všechny zastávky";
+    }
+
+    document.getElementById("categoryScreen").style.display = "none";
+    document.getElementById("difficultyScreen").style.display = "flex";
+  }
+
+  function backToCategories() {
+    document.getElementById("difficultyScreen").style.display = "none";
+    document.getElementById("categoryScreen").style.display = "flex";
+  }
+
+  function startGame(diff) {
+    gameDifficulty = diff;
+    score = 0;
+    streak = 0;
+    maxStreak = 0;
+    p1Score = 0;
+    p2Score = 0;
+    activeMPPlayer = null;
+    playedHistory = [];
+    
+    totalGamesPlayed++;
+    localStorage.setItem("liberec_guesser_games", totalGamesPlayed);
+    checkAchievements();
+
+    updateStats();
+    
+    document.body.classList.add("in-game");
+    document.getElementById("difficultyScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "flex";
+
+    if (gameDifficulty === 'geoguessr') {
+      document.getElementById("mapContainer").style.display = "block";
+      document.getElementById("mapControls").style.display = "block";
+      document.getElementById("textControls").style.display = "none";
+      document.getElementById("mpContainer").style.display = "none";
+      document.getElementById("statsBar").style.display = "flex";
+      document.getElementById("timerBadge").style.display = "flex";
+      initMap();
+    } else if (gameDifficulty === 'mp') {
+      document.getElementById("mapContainer").style.display = "none";
+      document.getElementById("mapControls").style.display = "none";
+      document.getElementById("textControls").style.display = "flex";
+      document.getElementById("statsBar").style.display = "none";
+      document.getElementById("mpContainer").style.display = "flex";
+      document.getElementById("p1Score").innerText = "0";
+      document.getElementById("p2Score").innerText = "0";
+      document.getElementById("textControls").style.opacity = "0.4";
+      document.getElementById("textControls").style.pointerEvents = "none";
+    } else {
+      document.getElementById("mapContainer").style.display = "none";
+      document.getElementById("mapControls").style.display = "none";
+      document.getElementById("textControls").style.display = "flex";
+      document.getElementById("mpContainer").style.display = "none";
+      document.getElementById("statsBar").style.display = "flex";
+      document.getElementById("textControls").style.opacity = "1";
+      document.getElementById("textControls").style.pointerEvents = "all";
+
+      if (gameDifficulty === 'chill') {
+        document.getElementById("timerBadge").style.display = "none";
+      } else {
+        document.getElementById("timerBadge").style.display = "flex";
+      }
+    }
+
+    loadNextLevel();
+  }
+
+  function updateStats() {
+    document.getElementById("score").innerText = score;
+    document.getElementById("streak").innerText = streak;
+
+    if (streak >= 10) {
+      localStorage.setItem("ach_guru", "1");
+      checkAchievements();
+    }
+
+    if (streak >= 3) {
+      appCard.classList.add("combo-active");
+    } else {
+      appCard.classList.remove("combo-active");
+    }
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("liberec_guesser_highscore", highScore);
+      document.getElementById("highScoreVal").innerText = highScore + " PTS";
+    }
+  }
+
+  function loadNextLevel() {
+    const randomIndex = Math.floor(Math.random() * activePool.length);
+    currentLevel = activePool[randomIndex];
+
+    stopImg.src = currentLevel.image;
+
+    document.getElementById("statusMsg").innerText = "";
+    document.getElementById("statusMsg").className = "status-msg";
+    document.getElementById("hintDisplay").innerText = "";
+    appCard.className = "app-card" + (streak >= 3 ? " combo-active" : "");
+    
+    input.value = "";
+    userSelectedCoords = null;
+    roundStartTime = Date.now();
+
+    if (userMarker) map && map.removeLayer(userMarker);
+    if (correctMarker) map && map.removeLayer(correctMarker);
+    if (polyline) map && map.removeLayer(polyline);
+
+    if (gameDifficulty === 'geoguessr') {
+      map && map.setView([50.7500, 15.0400], 13);
+    } else if (gameDifficulty === 'mp') {
+      activeMPPlayer = null;
+      document.getElementById("p1Box").className = "mp-box";
+      document.getElementById("p2Box").className = "mp-box";
+      document.getElementById("textControls").style.opacity = "0.4";
+      document.getElementById("textControls").style.pointerEvents = "none";
+    } else {
+      input.focus();
+    }
+    
+    if (gameDifficulty !== 'chill') {
+      timeLeft = 30;
+      document.getElementById("timer").innerText = timeLeft;
+      startTimer();
+    }
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if (gameDifficulty === 'mp' && !activeMPPlayer) {
+      if (e.key.toLowerCase() === 'a') {
+        activeMPPlayer = 1;
+        document.getElementById("p1Box").className = "mp-box active-p1";
+        enableMPInput();
+      } else if (e.key.toLowerCase() === 'l') {
+        activeMPPlayer = 2;
+        document.getElementById("p2Box").className = "mp-box active-p2";
+        enableMPInput();
+      }
+    }
+  });
+
+  function enableMPInput() {
+    document.getElementById("textControls").style.opacity = "1";
+    document.getElementById("textControls").style.pointerEvents = "all";
+    input.focus();
+  }
+
+  function buyHint(type) {
+    if (type === 'text') {
+      if (score >= 50) {
+        score -= 50;
+        playSound('hint');
+        updateStats();
+        
+        const str = currentLevel.answer;
+        let hint = "";
+        for (let i = 0; i < str.length; i++) {
+          if (i === 0 || i === str.length - 1) {
+            hint += str[i] + " ";
+          } else if (str[i] === " ") {
+            hint += "   ";
+          } else {
+            hint += "_ ";
+          }
+        }
+        document.getElementById("hintDisplay").innerText = hint;
+      } else {
+        showStatus(false, "⚠️ Na nápovědu potřebuješ 50 bodů!");
+      }
+    } else if (type === 'zone') {
+      if (score >= 30) {
+        score -= 30;
+        playSound('hint');
+        updateStats();
+        document.getElementById("hintDisplay").innerText = "📍 Zóna/Okrsek: " + currentLevel.zone;
+      } else {
+        showStatus(false, "⚠️ Na nápovědu potřebuješ 30 bodů!");
+      }
+    }
+  }
+
+  function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δφ = (lat2-lat1) * Math.PI/180;
+    const Δλ = (lon2-lon1) * Math.PI/180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return Math.round(R * c);
+  }
+
+  function submitMapGuess() {
+    if (!userSelectedCoords) {
+      showStatus(false, "⚠️ Klikni nejdřív na mapu!");
+      return;
+    }
+
+    clearInterval(timerInterval);
+    const target = [currentLevel.lat, currentLevel.lng];
+    const dist = getDistanceInMeters(userSelectedCoords.lat, userSelectedCoords.lng, target[0], target[1]);
+
+    correctMarker = L.marker(target).addTo(map).bindPopup("Správné místo: " + currentLevel.answer).openPopup();
+    polyline = L.polyline([userSelectedCoords, target], {color: '#ffb703', weight: 4}).addTo(map);
+    map.fitBounds(polyline.getBounds(), {padding: [30, 30]});
+
+    let earned = 0;
+    if (dist < 150) earned = 500;
+    else if (dist < 500) earned = 300;
+    else if (dist < 1500) earned = 100;
+
+    if (earned > 0) {
+      playSound('success');
+      confetti({ particleCount: 60, spread: 50, origin: { y: 0.7 } });
+      score += earned;
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+      playedHistory.push({ name: currentLevel.answer, status: true });
+      updateStats();
+      showStatus(true, `🎯 Přesnost: ${dist}m od zastávky! +${earned} PTS`);
+    } else {
+      playSound('fail');
+      triggerShake();
+      streak = 0;
+      playedHistory.push({ name: currentLevel.answer, status: false });
+      updateStats();
+      showStatus(false, `❌ Vedle o ${dist}m! (${currentLevel.answer})`);
+    }
+
+    setTimeout(loadNextLevel, 3000);
+  }
+
+  function normalizeText(text) {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  }
+
+  function submitGuess() {
+    const userGuess = normalizeText(input.value);
+    if (!userGuess) return;
+
+    const correctAnswer = normalizeText(currentLevel.answer);
+    const timeTaken = (Date.now() - roundStartTime) / 1000;
+
+    if (userGuess === correctAnswer) {
+      clearInterval(timerInterval);
+      playSound('success');
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+
+      if (timeTaken <= 3) {
+        localStorage.setItem("ach_speed", "1");
+        checkAchievements();
+      }
+
+      if (gameDifficulty === 'mp') {
+        if (activeMPPlayer === 1) {
+          p1Score += 100;
+          document.getElementById("p1Score").innerText = p1Score;
+          showStatus(true, "🎉 HRÁČ 1 ZÍSKÁVÁ BOD!");
+        } else {
+          p2Score += 100;
+          document.getElementById("p2Score").innerText = p2Score;
+          showStatus(true, "🎉 HRÁČ 2 ZÍSKÁVÁ BOD!");
+        }
+        setTimeout(loadNextLevel, 1300);
+        return;
+      }
+
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+      
+      const multiplier = streak >= 3 ? 2 : 1;
+      const earned = (100 + (streak * 20)) * multiplier;
+      score += earned;
+      
+      playedHistory.push({ name: currentLevel.answer, status: true });
+      updateStats();
+
+      showStatus(true, `🎉 SPRÁVNĚ! +${earned} PTS ${multiplier > 1 ? '(2x COMBO!)' : ''}`);
+      setTimeout(loadNextLevel, 1300);
+    } else {
+      playedHistory.push({ name: currentLevel.answer, status: false });
+      
+      if (gameDifficulty === 'mp') {
+        playSound('fail');
+        triggerShake();
+        if (activeMPPlayer === 1) p1Score = Math.max(0, p1Score - 50);
+        else p2Score = Math.max(0, p2Score - 50);
+        
+        document.getElementById("p1Score").innerText = p1Score;
+        document.getElementById("p2Score").innerText = p2Score;
+        
+        showStatus(false, `❌ CHYBA! HRÁČ ${activeMPPlayer} ZTRÁCÍ BOD!`);
+        setTimeout(loadNextLevel, 1300);
+        return;
+      }
+
+      if (gameDifficulty === 'sudden') {
+        clearInterval(timerInterval);
+        endGame("Chybný tip v Sudden Death!");
+      } else {
+        playSound('fail');
+        triggerShake();
+        streak = 0;
+        updateStats();
+        showStatus(false, "❌ ŠPATNĚ, ZKUS TO ZNOVU!");
+      }
+    }
+  }
+
+  function triggerShake() {
+    appCard.classList.add("shake");
+    setTimeout(() => appCard.classList.remove("shake"), 400);
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timer").innerText = timeLeft;
+
+      if (timeLeft <= 5 && timeLeft > 0) playSound('tick');
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        playedHistory.push({ name: currentLevel.answer, status: false });
+        endGame("Vypršel ti časový limit!");
+      }
+    }, 1000);
+  }
+
+  function endGame(reason) {
+    playSound('fail');
+    triggerShake();
+    
+    document.getElementById("goScore").innerText = score;
+    document.getElementById("goStreak").innerText = maxStreak;
+    document.getElementById("goTitle").innerText = gameDifficulty === 'mp' ? "Konec Multiplayeru!" : "Konec hry! ⏰";
+    
+    const list = document.getElementById("summaryList");
+    list.innerHTML = "";
+    playedHistory.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "summary-item " + (item.status ? "ok" : "fail");
+      div.innerHTML = `<span>${item.name}</span> <span>${item.status ? "🟢 Správně" : "🔴 Chyba"}</span>`;
+      list.appendChild(div);
+    });
+
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "flex";
+  }
+
+  function backToMenu() {
+    clearInterval(timerInterval);
+    document.body.classList.remove("in-game");
+    setRandomBackground();
+    
+    document.getElementById("categoryScreen").style.display = "flex";
+    document.getElementById("difficultyScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("statsBar").style.display = "none";
+    appCard.className = "app-card";
+  }
+
+  function showStatus(isCorrect, text) {
+    const msg = document.getElementById("statusMsg");
+    msg.className = "status-msg " + (isCorrect ? "correct" : "wrong");
+    msg.innerText = text;
+  }
+
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") submitGuess();
+  });
+</script>
+
+</body>
+</html>
