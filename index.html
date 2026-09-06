@@ -13,11 +13,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- FIREBASE INTEGRACE S TVÝMI KLÍČI -->
+  <!-- FIREBASE INTEGRACE S TVÝMI KLÍČI A ONLINE MULTIPLAYEREM -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDWnA2vUambrgGu-Q3OLFgEZl-dU66xVgs",
@@ -35,6 +35,9 @@
     const provider = new GoogleAuthProvider();
 
     window.currentUser = null;
+    window.currentRoomId = null;
+    window.unsubscribeRoom = null;
+    window.isHost = false;
 
     window.loginWithGoogle = async () => {
       try {
@@ -141,6 +144,139 @@
       } catch (e) {
         console.error("Chyba načítání žebříčku:", e);
       }
+    };
+
+    /* ================= ONLINE MULTIPLAYER LOGIKA ================= */
+
+    window.openOnlineModal = () => {
+      if (!window.currentUser) {
+        alert("Pro hraní Online 1v1 se musíte nejdříve přihlásit přes Google! 😅");
+        return;
+      }
+      document.getElementById("onlineModal").style.display = "flex";
+      document.getElementById("onlineRoomView").style.display = "none";
+      document.getElementById("onlineLobbyView").style.display = "block";
+    };
+
+    window.closeOnlineModal = () => {
+      document.getElementById("onlineModal").style.display = "none";
+    };
+
+    window.createOnlineRoom = async () => {
+      const code = Math.random().toString(36).substring(2, 6).toUpperCase();
+      window.currentRoomId = code;
+      window.isHost = true;
+
+      const roomRef = doc(db, "rooms", code);
+      await setDoc(roomRef, {
+        status: "waiting",
+        host: window.currentUser.uid,
+        currentStopIndex: Math.floor(Math.random() * allStops.length),
+        players: {
+          [window.currentUser.uid]: {
+            name: window.currentUser.displayName || "Hráč 1",
+            photo: window.currentUser.photoURL || "",
+            score: 0
+          }
+        }
+      });
+
+      document.getElementById("onlineLobbyView").style.display = "none";
+      document.getElementById("onlineRoomView").style.display = "block";
+      document.getElementById("displayRoomCode").innerText = code;
+      document.getElementById("waitingStatus").innerText = "Čekám na druhého hráče... ⏳";
+
+      listenToRoom(code);
+    };
+
+    window.joinOnlineRoom = async () => {
+      const code = document.getElementById("roomCodeInput").value.trim().toUpperCase();
+      if (!code) {
+        alert("Zadej kód místnosti!");
+        return;
+      }
+
+      const roomRef = doc(db, "rooms", code);
+      const roomSnap = await getDoc(roomRef);
+
+      if (!roomSnap.exists()) {
+        alert("Místnost s tímto kódem neexistuje! ❌");
+        return;
+      }
+
+      window.currentRoomId = code;
+      window.isHost = false;
+
+      await updateDoc(roomRef, {
+        [`players.${window.currentUser.uid}`]: {
+          name: window.currentUser.displayName || "Hráč 2",
+          photo: window.currentUser.photoURL || "",
+          score: 0
+        },
+        status: "playing"
+      });
+
+      document.getElementById("onlineLobbyView").style.display = "none";
+      document.getElementById("onlineRoomView").style.display = "block";
+      document.getElementById("displayRoomCode").innerText = code;
+      document.getElementById("waitingStatus").innerText = "Připojování do hry... 🚀";
+
+      listenToRoom(code);
+    };
+
+    function listenToRoom(code) {
+      if (window.unsubscribeRoom) window.unsubscribeRoom();
+
+      const roomRef = doc(db, "rooms", code);
+      window.unsubscribeRoom = onSnapshot(roomRef, (snapshot) => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.data();
+
+        if (data.status === "playing") {
+          closeOnlineModal();
+          if (document.getElementById("gameScreen").style.display !== "flex") {
+            startGame('online');
+          }
+          syncOnlineGame(data);
+        }
+      });
+    }
+
+    function syncOnlineGame(data) {
+      const players = Object.keys(data.players);
+      const p1Uid = players[0];
+      const p2Uid = players[1];
+
+      if (p1Uid) {
+        document.getElementById("p1OnlineName").innerText = data.players[p1Uid].name;
+        document.getElementById("p1Score").innerText = data.players[p1Uid].score;
+      }
+      if (p2Uid) {
+        document.getElementById("p2OnlineName").innerText = data.players[p2Uid].name;
+        document.getElementById("p2Score").innerText = data.players[p2Uid].score;
+      }
+
+      // Načtení stejné zastávky pro oba
+      if (data.currentStopIndex !== undefined && allStops[data.currentStopIndex]) {
+        if (!currentLevel || currentLevel !== allStops[data.currentStopIndex]) {
+          currentLevel = allStops[data.currentStopIndex];
+          stopImg.src = currentLevel.image;
+          document.getElementById("statusMsg").innerText = "";
+          document.getElementById("statusMsg").className = "status-msg";
+          document.getElementById("guessInput").value = "";
+        }
+      }
+    }
+
+    window.addOnlinePoint = async (pts) => {
+      if (!window.currentRoomId || !window.currentUser) return;
+      const roomRef = doc(db, "rooms", window.currentRoomId);
+      const nextIndex = Math.floor(Math.random() * activePool.length);
+
+      await updateDoc(roomRef, {
+        [`players.${window.currentUser.uid}.score`]: increment(pts),
+        currentStopIndex: nextIndex
+      });
     };
   </script>
 
@@ -464,6 +600,42 @@
     .summary-item.ok { border-left: 4px solid var(--success); }
     .summary-item.fail { border-left: 4px solid var(--danger); }
 
+    /* MODAL PRO ONLINE LOBBY */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      animation: fadeIn 0.3s ease-out;
+    }
+    .room-code-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 6px;
+      background: var(--input-bg);
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      margin: 16px 0;
+    }
+
     @media (max-width: 600px) {
       body { padding: 8px; }
       .app-card { padding: 16px; border-radius: 20px; }
@@ -616,15 +788,27 @@
         <span class="mode-tag" style="color: #ff4757; border-color: rgba(255,71,87,0.3);">HARD</span>
       </button>
 
+      <!-- NOVÉ ONLINE 1v1 TLAČÍTKO -->
+      <button class="btn-mode" onclick="openOnlineModal()">
+        <div class="mode-left">
+          <div class="mode-icon-box">🌐</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Online 1v1</div>
+            <div class="mode-desc">Vytvoř místnost a vyzvi kámoše přes kód</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #00d2d3; border-color: rgba(0,210,211,0.3);">ONLINE</span>
+      </button>
+
       <button class="btn-mode" onclick="startGame('mp')">
         <div class="mode-left">
           <div class="mode-icon-box">⚔️</div>
           <div class="mode-text-group">
-            <div class="mode-title">Multiplayer 1v1</div>
+            <div class="mode-title">Lokální 1v1</div>
             <div class="mode-desc">Hráč 1 [A] vs Hráč 2 [L] na 1 PC</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #00d2d3; border-color: rgba(0,210,211,0.3);">2 HRÁČI</span>
+        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">1 PC</span>
       </button>
     </div>
 
@@ -642,14 +826,14 @@
 
     <div class="mp-container" id="mpContainer" style="display: none;">
       <div class="mp-box" id="p1Box">
-        <div style="color: var(--p1-color); font-weight:800;">HRÁČ 1</div>
+        <div style="color: var(--p1-color); font-weight:800;" id="p1OnlineName">HRÁČ 1</div>
         <div class="mp-score" id="p1Score">0</div>
-        <div class="mp-key">ZMÁČKNI [A] PRO TIP</div>
+        <div class="mp-key" id="p1Subtext">ZMÁČKNI [A] PRO TIP</div>
       </div>
       <div class="mp-box" id="p2Box">
-        <div style="color: var(--p2-color); font-weight:800;">HRÁČ 2</div>
+        <div style="color: var(--p2-color); font-weight:800;" id="p2OnlineName">HRÁČ 2</div>
         <div class="mp-score" id="p2Score">0</div>
-        <div class="mp-key">ZMÁČKNI [L] PRO TIP</div>
+        <div class="mp-key" id="p2Subtext">ZMÁČKNI [L] PRO TIP</div>
       </div>
     </div>
 
@@ -692,6 +876,33 @@
 
     <button class="btn-submit" style="width: 100%;" onclick="startGame(gameDifficulty)">Hrát znovu 🔄</button>
     <button class="btn-back" onclick="backToMenu()">ZPĚT DO HLAVNÍHO MENU</button>
+  </div>
+</div>
+
+<!-- MODAL PRO ONLINE MULTIPLAYER LOBBY -->
+<div class="modal-overlay" id="onlineModal">
+  <div class="modal-box">
+    <div id="onlineLobbyView">
+      <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">Online 1v1 Místnost</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Vytvoř novou místnost nebo zadej kód od kamoše</p>
+
+      <button class="btn-submit" style="width: 100%; margin-bottom: 16px;" onclick="createOnlineRoom()">Vytvořit novou hru 🎮</button>
+
+      <div style="margin: 12px 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">NEBO</div>
+
+      <div class="input-row" style="margin-bottom: 12px;">
+        <input type="text" id="roomCodeInput" placeholder="Zadej kód místnosti" style="text-transform: uppercase; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800;">
+      </div>
+      <button class="btn-submit" style="width: 100%; background: var(--p1-color);" onclick="joinOnlineRoom()">Připojit se do hry 🚀</button>
+      <button class="btn-back" onclick="closeOnlineModal()">ZRUŠIT</button>
+    </div>
+
+    <div id="onlineRoomView" style="display: none;">
+      <h2 style="font-size: 1.3rem; font-weight: 800;">Kód tvé místnosti:</h2>
+      <div class="room-code-display" id="displayRoomCode">----</div>
+      <p style="font-size: 0.85rem; color: var(--accent); font-weight: 700;" id="waitingStatus">Čekám na druhého hráče... ⏳</p>
+      <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 20px;">Odejít z místnosti</button>
+    </div>
   </div>
 </div>
 
@@ -877,10 +1088,24 @@
       document.getElementById("textControls").style.display = "flex";
       document.getElementById("statsBar").style.display = "none";
       document.getElementById("mpContainer").style.display = "flex";
+      document.getElementById("p1OnlineName").innerText = "HRÁČ 1";
+      document.getElementById("p2OnlineName").innerText = "HRÁČ 2";
+      document.getElementById("p1Subtext").innerText = "ZMÁČKNI [A] PRO TIP";
+      document.getElementById("p2Subtext").innerText = "ZMÁČKNI [L] PRO TIP";
       document.getElementById("p1Score").innerText = "0";
       document.getElementById("p2Score").innerText = "0";
       document.getElementById("textControls").style.opacity = "0.4";
       document.getElementById("textControls").style.pointerEvents = "none";
+    } else if (gameDifficulty === 'online') {
+      document.getElementById("mapContainer").style.display = "none";
+      document.getElementById("mapControls").style.display = "none";
+      document.getElementById("textControls").style.display = "flex";
+      document.getElementById("statsBar").style.display = "none";
+      document.getElementById("mpContainer").style.display = "flex";
+      document.getElementById("p1Subtext").innerText = "ŽIVÉ SKÓRE";
+      document.getElementById("p2Subtext").innerText = "ŽIVÉ SKÓRE";
+      document.getElementById("textControls").style.opacity = "1";
+      document.getElementById("textControls").style.pointerEvents = "all";
     } else {
       document.getElementById("mapContainer").style.display = "none";
       document.getElementById("mapControls").style.display = "none";
@@ -897,7 +1122,9 @@
       }
     }
 
-    loadNextLevel();
+    if (gameDifficulty !== 'online') {
+      loadNextLevel();
+    }
   }
 
   function updateStats() {
@@ -962,7 +1189,7 @@
       if (window.innerWidth > 600) input.focus();
     }
     
-    if (gameDifficulty !== 'chill') {
+    if (gameDifficulty !== 'chill' && gameDifficulty !== 'online') {
       timeLeft = 30;
       document.getElementById("timer").innerText = timeLeft;
       startTimer();
@@ -1099,6 +1326,12 @@
         checkAchievements();
       }
 
+      if (gameDifficulty === 'online') {
+        showStatus(true, "🎉 SPRÁVNĚ! Rychlá ruka!");
+        if (window.addOnlinePoint) window.addOnlinePoint(100);
+        return;
+      }
+
       if (gameDifficulty === 'mp') {
         if (activeMPPlayer === 1) {
           p1Score += 100;
@@ -1127,6 +1360,13 @@
       setTimeout(loadNextLevel, 1300);
     } else {
       input.value = "";
+
+      if (gameDifficulty === 'online') {
+        playSound('fail');
+        triggerShake();
+        showStatus(false, "❌ ŠPATNĚ, ZKUS TO ZNOVU!");
+        return;
+      }
 
       if (gameDifficulty === 'mp') {
         playSound('fail');
@@ -1200,6 +1440,8 @@
 
   function backToMenu() {
     clearInterval(timerInterval);
+    if (window.unsubscribeRoom) window.unsubscribeRoom();
+    
     document.body.classList.remove("in-game");
     setRandomBackground();
     
