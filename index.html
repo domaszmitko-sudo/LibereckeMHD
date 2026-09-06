@@ -258,7 +258,6 @@
         document.getElementById("p2Score").innerText = data.players[p2Uid].score;
       }
 
-      // Načtení stejné zastávky pro oba
       if (data.currentStopIndex !== undefined && allStops[data.currentStopIndex]) {
         if (!currentLevel || currentLevel !== allStops[data.currentStopIndex]) {
           currentLevel = allStops[data.currentStopIndex];
@@ -356,7 +355,6 @@
     .dpmlj-logo { height: 42px; width: auto; object-fit: contain; }
     .header-actions { display: flex; align-items: center; gap: 12px; }
 
-    /* AUTH STYLY */
     .btn-google {
       background: #ffffff;
       color: #000;
@@ -426,7 +424,6 @@
     }
     .menu-subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
 
-    /* LEADERBOARD BOX */
     .leaderboard-box {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -456,7 +453,6 @@
 
     .modes-grid { display: flex; flex-direction: column; gap: 12px; }
 
-    /* VYČIŠTĚNÉ ZAROVNÁNÍ TLAČÍTEK */
     .btn-mode {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -585,8 +581,6 @@
 
     .mp-container { display: flex; gap: 12px; margin-bottom: 12px; }
     .mp-box { flex: 1; background: var(--input-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 12px; text-align: center; font-family: 'JetBrains Mono', monospace; transition: all 0.3s; }
-    .mp-box.active-p1 { border-color: var(--p1-color); box-shadow: 0 0 20px rgba(0,210,211,0.3); }
-    .mp-box.active-p2 { border-color: var(--p2-color); box-shadow: 0 0 20px rgba(255,159,67,0.3); }
     .mp-score { font-size: 1.5rem; font-weight: 800; }
     .mp-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
@@ -602,7 +596,6 @@
     .summary-item.ok { border-left: 4px solid var(--success); }
     .summary-item.fail { border-left: 4px solid var(--danger); }
 
-    /* MODAL PRO ONLINE LOBBY */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -665,7 +658,6 @@
     </div>
     
     <div class="header-actions">
-      <!-- GOOGLE LOGIN PROFIL -->
       <div id="authBox"></div>
 
       <button class="btn-icon" id="soundBtn" onclick="toggleSound()">🔊</button>
@@ -678,14 +670,12 @@
     </div>
   </div>
 
-  <!-- MENU KROK 1: VÝBĚR SEZNAMU ZASTÁVEK & TABULKA -->
   <div id="categoryScreen" class="menu-screen">
     <div class="hero-banner">
       <h1 class="menu-title">Poznej zastávku</h1>
       <p class="menu-subtitle">Vyber si okruh zastávek pro hru</p>
     </div>
 
-    <!-- GLOBÁLNÍ ŽEBŘÍČEK HRÁČŮ Z FIREBASE -->
     <div class="leaderboard-box">
       <div class="lb-title">
         <span>🏆 TOP 5 HRÁČŮ (GLOBÁLNÍ)</span>
@@ -738,7 +728,6 @@
     </div>
   </div>
 
-  <!-- MENU KROK 2: VÝBĚR OBTÍŽNOSTI / HERNÍHO MÓDU -->
   <div id="difficultyScreen" class="menu-screen" style="display: none;">
     <div class="hero-banner">
       <h1 class="menu-title">Herní Mód</h1>
@@ -790,7 +779,6 @@
         <span class="mode-tag" style="color: #ff4757; border-color: rgba(255,71,87,0.3);">HARD</span>
       </button>
 
-      <!-- NOVÉ ONLINE 1v1 TLAČÍTKO -->
       <button class="btn-mode" onclick="openOnlineModal()">
         <div class="mode-left">
           <div class="mode-icon-box">🌐</div>
@@ -801,23 +789,11 @@
         </div>
         <span class="mode-tag" style="color: #00d2d3; border-color: rgba(0,210,211,0.3);">ONLINE</span>
       </button>
-
-      <button class="btn-mode" onclick="startGame('mp')">
-        <div class="mode-left">
-          <div class="mode-icon-box">⚔️</div>
-          <div class="mode-text-group">
-            <div class="mode-title">Lokální 1v1</div>
-            <div class="mode-desc">Hráč 1 [A] vs Hráč 2 [L] na 1 PC</div>
-          </div>
-        </div>
-        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">1 PC</span>
-      </button>
     </div>
 
     <button class="btn-back" onclick="backToCategories()">ZPĚT NA VÝBĚR LINKY</button>
   </div>
 
-  <!-- GAME SCREEN -->
   <div id="gameScreen" class="game-screen">
     <div class="image-frame">
       <img id="stopImg" src="" alt="Zastávka">
@@ -830,12 +806,12 @@
       <div class="mp-box" id="p1Box">
         <div style="color: var(--p1-color); font-weight:800;" id="p1OnlineName">HRÁČ 1</div>
         <div class="mp-score" id="p1Score">0</div>
-        <div class="mp-key" id="p1Subtext">ZMÁČKNI [A] PRO TIP</div>
+        <div class="mp-key" id="p1Subtext">ŽIVÉ SKÓRE</div>
       </div>
       <div class="mp-box" id="p2Box">
         <div style="color: var(--p2-color); font-weight:800;" id="p2OnlineName">HRÁČ 2</div>
         <div class="mp-score" id="p2Score">0</div>
-        <div class="mp-key" id="p2Subtext">ZMÁČKNI [L] PRO TIP</div>
+        <div class="mp-key" id="p2Subtext">ŽIVÉ SKÓRE</div>
       </div>
     </div>
 
@@ -858,7 +834,6 @@
     <button class="btn-back" onclick="backToMenu()">ESC / ZPĚT DO MENU</button>
   </div>
 
-  <!-- GAME OVER SCREEN -->
   <div id="gameOverScreen" class="game-over-screen">
     <div class="go-title" id="goTitle">Konec hry! ⏰</div>
 
@@ -881,7 +856,6 @@
   </div>
 </div>
 
-<!-- MODAL PRO ONLINE MULTIPLAYER LOBBY -->
 <div class="modal-overlay" id="onlineModal">
   <div class="modal-box">
     <div id="onlineLobbyView">
@@ -994,10 +968,6 @@
   let playedHistory = [];
   let roundStartTime = 0;
 
-  let p1Score = 0;
-  let p2Score = 0;
-  let activeMPPlayer = null;
-
   let map, userMarker, correctMarker, polyline;
   let userSelectedCoords = null;
 
@@ -1060,9 +1030,6 @@
     score = 0;
     streak = 0;
     maxStreak = 0;
-    p1Score = 0;
-    p2Score = 0;
-    activeMPPlayer = null;
     playedHistory = [];
     
     totalGamesPlayed++;
@@ -1084,20 +1051,6 @@
       document.getElementById("statsBar").style.display = "flex";
       document.getElementById("timerBadge").style.display = "flex";
       initMap();
-    } else if (gameDifficulty === 'mp') {
-      document.getElementById("mapContainer").style.display = "none";
-      document.getElementById("mapControls").style.display = "none";
-      document.getElementById("textControls").style.display = "flex";
-      document.getElementById("statsBar").style.display = "none";
-      document.getElementById("mpContainer").style.display = "flex";
-      document.getElementById("p1OnlineName").innerText = "HRÁČ 1";
-      document.getElementById("p2OnlineName").innerText = "HRÁČ 2";
-      document.getElementById("p1Subtext").innerText = "ZMÁČKNI [A] PRO TIP";
-      document.getElementById("p2Subtext").innerText = "ZMÁČKNI [L] PRO TIP";
-      document.getElementById("p1Score").innerText = "0";
-      document.getElementById("p2Score").innerText = "0";
-      document.getElementById("textControls").style.opacity = "0.4";
-      document.getElementById("textControls").style.pointerEvents = "none";
     } else if (gameDifficulty === 'online') {
       document.getElementById("mapContainer").style.display = "none";
       document.getElementById("mapControls").style.display = "none";
@@ -1181,12 +1134,6 @@
 
     if (gameDifficulty === 'geoguessr') {
       map && map.setView([50.7500, 15.0400], 13);
-    } else if (gameDifficulty === 'mp') {
-      activeMPPlayer = null;
-      document.getElementById("p1Box").className = "mp-box";
-      document.getElementById("p2Box").className = "mp-box";
-      document.getElementById("textControls").style.opacity = "0.4";
-      document.getElementById("textControls").style.pointerEvents = "none";
     } else {
       if (window.innerWidth > 600) input.focus();
     }
@@ -1196,26 +1143,6 @@
       document.getElementById("timer").innerText = timeLeft;
       startTimer();
     }
-  }
-
-  window.addEventListener("keydown", (e) => {
-    if (gameDifficulty === 'mp' && !activeMPPlayer) {
-      if (e.key.toLowerCase() === 'a') {
-        activeMPPlayer = 1;
-        document.getElementById("p1Box").className = "mp-box active-p1";
-        enableMPInput();
-      } else if (e.key.toLowerCase() === 'l') {
-        activeMPPlayer = 2;
-        document.getElementById("p2Box").className = "mp-box active-p2";
-        enableMPInput();
-      }
-    }
-  });
-
-  function enableMPInput() {
-    document.getElementById("textControls").style.opacity = "1";
-    document.getElementById("textControls").style.pointerEvents = "all";
-    input.focus();
   }
 
   function buyHint(type) {
@@ -1334,20 +1261,6 @@
         return;
       }
 
-      if (gameDifficulty === 'mp') {
-        if (activeMPPlayer === 1) {
-          p1Score += 100;
-          document.getElementById("p1Score").innerText = p1Score;
-          showStatus(true, "🎉 HRÁČ 1 ZÍSKÁVÁ BOD!");
-        } else {
-          p2Score += 100;
-          document.getElementById("p2Score").innerText = p2Score;
-          showStatus(true, "🎉 HRÁČ 2 ZÍSKÁVÁ BOD!");
-        }
-        setTimeout(loadNextLevel, 1300);
-        return;
-      }
-
       streak++;
       if (streak > maxStreak) maxStreak = streak;
       
@@ -1367,20 +1280,6 @@
         playSound('fail');
         triggerShake();
         showStatus(false, "❌ ŠPATNĚ, ZKUS TO ZNOVU!");
-        return;
-      }
-
-      if (gameDifficulty === 'mp') {
-        playSound('fail');
-        triggerShake();
-        if (activeMPPlayer === 1) p1Score = Math.max(0, p1Score - 50);
-        else p2Score = Math.max(0, p2Score - 50);
-        
-        document.getElementById("p1Score").innerText = p1Score;
-        document.getElementById("p2Score").innerText = p2Score;
-        
-        showStatus(false, `❌ CHYBA! HRÁČ ${activeMPPlayer} ZTRÁCÍ BOD!`);
-        setTimeout(loadNextLevel, 1300);
         return;
       }
 
@@ -1425,7 +1324,7 @@
     
     document.getElementById("goScore").innerText = score;
     document.getElementById("goStreak").innerText = maxStreak;
-    document.getElementById("goTitle").innerText = gameDifficulty === 'mp' ? "Konec Multiplayeru!" : "Konec hry! ⏰";
+    document.getElementById("goTitle").innerText = "Konec hry! ⏰";
     
     const list = document.getElementById("summaryList");
     list.innerHTML = "";
