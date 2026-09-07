@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- FIREBASE INTEGRACE S TVÝMI KLÍČI A ONLINE MULTIPLAYEREM -->
+  <!-- FIREBASE INTEGRACE S ONLINE MULTIPLAYEREM -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -227,7 +227,10 @@
     };
 
     function listenToRoom(code) {
-      if (window.unsubscribeRoom) window.unsubscribeRoom();
+      if (window.unsubscribeRoom) {
+        window.unsubscribeRoom();
+        window.unsubscribeRoom = null;
+      }
 
       const roomRef = doc(db, "rooms", code);
       window.unsubscribeRoom = onSnapshot(roomRef, (snapshot) => {
@@ -272,7 +275,8 @@
     window.addOnlinePoint = async (pts) => {
       if (!window.currentRoomId || !window.currentUser) return;
       const roomRef = doc(db, "rooms", window.currentRoomId);
-      const nextIndex = Math.floor(Math.random() * activePool.length);
+      const pool = activePool.length > 0 ? activePool : allStops;
+      const nextIndex = Math.floor(Math.random() * pool.length);
 
       await updateDoc(roomRef, {
         [`players.${window.currentUser.uid}.score`]: increment(pts),
@@ -299,7 +303,14 @@
       --p2-color: #ff9f43;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      user-select: none; 
+      -webkit-tap-highlight-color: transparent; 
+      touch-action: manipulation;
+    }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -354,7 +365,7 @@
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .dpmlj-logo { height: 42px; width: auto; object-fit: contain; }
     .dpmlj-logo.logo-guessr {
-      height: 80px;
+      height: 70px;
       width: auto;
       object-fit: contain;
     }
@@ -443,14 +454,14 @@
     .lb-name { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-score { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--success); }
 
-    .achievements-row { display: flex; gap: 10px; justify-content: center; }
+    .achievements-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .ach-item {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
       padding: 8px 12px;
       border-radius: 12px;
       font-size: 0.8rem;
-      opacity: 0.3;
+      opacity: 0.35;
       filter: grayscale(1);
       transition: all 0.3s;
     }
@@ -505,8 +516,8 @@
     .image-frame {
       position: relative;
       width: 100%;
-      aspect-ratio: 1 / 1;
-      max-height: 460px;
+      aspect-ratio: 4 / 3;
+      max-height: 420px;
       border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--card-border);
@@ -518,7 +529,7 @@
     }
     .image-frame img { width: 100%; height: 100%; object-fit: contain; }
 
-    #mapContainer { width: 100%; height: 300px; border-radius: 20px; border: 1px solid var(--card-border); margin-bottom: 16px; overflow: hidden; display: none; }
+    #mapContainer { width: 100%; height: 280px; border-radius: 20px; border: 1px solid var(--card-border); margin-bottom: 16px; overflow: hidden; display: none; }
 
     .hint-display {
       font-family: 'JetBrains Mono', monospace;
@@ -531,7 +542,7 @@
     }
 
     .controls { display: flex; flex-direction: column; gap: 12px; }
-    .input-row { display: flex; gap: 8px; }
+    .input-row { display: flex; gap: 8px; position: relative; }
 
     input[type="text"] {
       flex: 1;
@@ -559,6 +570,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .btn-hint:hover { border-color: var(--accent); background: rgba(255, 183, 3, 0.05); }
 
@@ -590,8 +602,8 @@
     .mp-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
     .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
-    .go-title { font-size: 2rem; font-weight: 800; color: var(--danger); }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; width: 100%; display: flex; justify-around; font-family: 'JetBrains Mono', monospace; }
+    .go-title { font-size: 1.8rem; font-weight: 800; color: var(--danger); text-align: center; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; width: 100%; display: flex; justify-around: font-family: 'JetBrains Mono', monospace; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
     .go-stat-val { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
     .go-stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
@@ -637,18 +649,21 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 8px; }
-      .app-card { padding: 16px; border-radius: 20px; }
+      body { padding: 12px 8px; }
+      .app-card { padding: 20px 16px; border-radius: 24px; }
       .header { margin-bottom: 16px; }
-      .menu-title { font-size: 1.4rem; }
-      .btn-mode { padding: 10px 12px; border-radius: 14px; }
-      .mode-title { font-size: 0.8rem; }
-      .mode-desc { font-size: 0.65rem; }
+      .dpmlj-logo.logo-guessr { height: 50px; }
+      .menu-title { font-size: 1.6rem; }
+      .btn-mode { padding: 12px 14px; border-radius: 16px; }
+      .mode-title { font-size: 0.9rem; }
+      .mode-desc { font-size: 0.7rem; }
       .input-row { flex-direction: column; }
       .hint-btns { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
-      .btn-hint { padding: 10px; text-align: center; border-radius: 12px; }
-      #mapContainer { height: 160px; border-radius: 14px; }
-      .image-frame { width: 100%; max-height: none; aspect-ratio: 1 / 1; border-radius: 14px; }
+      .btn-hint { padding: 12px; text-align: center; border-radius: 12px; }
+      #mapContainer { height: 220px; border-radius: 16px; }
+      .image-frame { width: 100%; max-height: 280px; aspect-ratio: 4/3; border-radius: 16px; }
+      .stats-bar { gap: 4px; }
+      .badge { padding: 6px 10px; font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -840,7 +855,7 @@
   </div>
 
   <div id="gameOverScreen" class="game-over-screen">
-    <div class="go-title" id="goTitle">Konec hry! ⏰</div>
+    <div class="go-title" id="goTitle">GG! Kolo dokončeno 🔥</div>
 
     <div class="go-stats">
       <div class="go-stat-item">
@@ -941,24 +956,33 @@
     }
   }
 
+  // Zoznam zastávok
   const allStops = [
     { image: "Americka.png", answer: "Americká", zone: "Františkov", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
     { image: "Banskobystricka.png", answer: "Banskobystrická", zone: "Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true, tram23: false },
     { image: "Domazlicka.png", answer: "Domažlická", zone: "Františkov", lat: 50.7569389, lng: 15.0315181, line22: true, tram23: false },
     { image: "Husitska.png", answer: "Husitská", zone: "Janův Důl", lat: 50.7552606, lng: 15.0289144, line22: true, tram23: false },
-    { image: "Kavkazska.png", answer: "Kavkazská", zone: "Sídliště Vesec / Rochlice", lat: 50.7437667, lng: 15.0371819, line22: true, tram23: false },
+    { image: "Kavkazska.png", answer: "Kavkazská", zone: "Rochlice / Vesec", lat: 50.7437667, lng: 15.0371819, line22: true, tram23: false },
     { image: "Kubelikova.png", answer: "Kubelíkova", zone: "Janův Důl", lat: 50.7501717, lng: 15.0328664, line22: true, tram23: false },
-    { image: "OCNisa1.png", answer: "OC Nisa", zone: "Nákupní zóna Jih", lat: 50.7412378, lng: 15.0516472, line22: true, tram23: false },
-    { image: "OCNisaKino.png", answer: "OC Nisa Kino", zone: "Nákupní zóna Jih", lat: 50.7419394, lng: 15.0456361, line22: true, tram23: false },
-    { image: "Prumyslova.png", answer: "Průmyslová", zone: "Průmyslový obvod", lat: 50.7430039, lng: 15.0360069, line22: true, tram23: false },
-    { image: "PrumzonaJIH.png", answer: "Průmyslová zóna Jih", zone: "Průmyslový obvod", lat: 50.7339478, lng: 15.0417461, line22: true, tram23: false },
+    { image: "Kubelikova2.png", answer: "Kubelíkova", zone: "Janův Důl", lat: 50.7507325, lng: 15.0320417, line22: false, tram23: true },
+    { image: "OCNisa.png", answer: "OC Nisa", zone: "Rochlice / Nákupní zóna", lat: 50.7412378, lng: 15.0516472, line22: true, tram23: false },
+    { image: "OCNisaKino.png", answer: "OC Nisa kino", zone: "Rochlice / Nákupní zóna", lat: 50.7419394, lng: 15.0456361, line22: true, tram23: false },
+    { image: "Prumyslova.png", answer: "Průmyslová", zone: "Františkov / Průmyslová zóna", lat: 50.7430039, lng: 15.0360069, line22: true, tram23: false },
+    { image: "PrumzonaJIH.png", answer: "Průmyslová zóna Jih", zone: "Doubí / Průmyslová zóna", lat: 50.7339478, lng: 15.0417461, line22: true, tram23: false },
     { image: "USlunnehoPotoka.png", answer: "U Slunného potoka", zone: "Vesec", lat: 50.7359772, lng: 15.0373403, line22: true, tram23: false },
     { image: "HorniHanychov.png", answer: "Horní Hanychov", zone: "Horní Hanychov", lat: 50.7339811, lng: 15.0118803, line22: false, tram23: true },
     { image: "Spaleniste.png", answer: "Spáleniště", zone: "Horní Hanychov", lat: 50.7371583, lng: 15.0163333, line22: false, tram23: true },
     { image: "Hanychovkostel.png", answer: "Hanychov kostel", zone: "Dolní Hanychov", lat: 50.7424583, lng: 15.0232139, line22: false, tram23: true },
     { image: "Malodoubska.png", answer: "Malodoubská", zone: "Dolní Hanychov", lat: 50.7455889, lng: 15.0270083, line22: false, tram23: true },
     { image: "DolnyHanychov.png", answer: "Dolní Hanychov", zone: "Dolní Hanychov", lat: 50.7486806, lng: 15.0305889, line22: false, tram23: true },
-    { image: "Kubelikova2.png", answer: "Kubelíkova", zone: "Janův Důl", lat: 50.7511361, lng: 15.0322278, line22: false, tram23: true }
+    { image: "FrantiskovSidliste.png", answer: "Františkov sídliště", zone: "Františkov", lat: 50.7604217, lng: 15.0322028, line22: true, tram23: false },
+    { image: "FrantiskovSkola.png", answer: "Františkov škola", zone: "Františkov", lat: 50.7619933, lng: 15.0358372, line22: true, tram23: false },
+    { image: "Viadukt.png", answer: "Viadukt", zone: "Jeřáb / Centrum", lat: 50.7648850, lng: 15.0416881, line22: true, tram23: false },
+    { image: "Viadukt2.png", answer: "Viadukt", zone: "Jeřáb / Centrum", lat: 50.7645456, lng: 15.0358372, line22: false, tram23: true },
+    { image: "Krkonosska.png", answer: "Krkonošská", zone: "Františkov", lat: 50.7562000, lng: 15.0368000, line22: false, tram23: true },
+    { image: "StarePekarny.png", answer: "Staré Pekárny", zone: "Janův Důl", lat: 50.7541100, lng: 15.0354200, line22: false, tram23: true },
+    { image: "Vapenka.png", answer: "Vápenka", zone: "Jeřáb", lat: 50.7583300, lng: 15.0415500, line22: false, tram23: true },
+    { image: "JanuvDul.png", answer: "Janův Důl", zone: "Janův Důl", lat: 50.7523100, lng: 15.0339000, line22: false, tram23: true }
   ];
 
   let activePool = [];
@@ -972,6 +996,7 @@
   let timerInterval;
   let playedHistory = [];
   let roundStartTime = 0;
+  let usedHintInCurrentRound = false;
 
   let map, userMarker, correctMarker, polyline;
   let userSelectedCoords = null;
@@ -1008,16 +1033,25 @@
     setTimeout(() => { map.invalidateSize(); }, 200);
   }
 
+  function resetActivePool() {
+    if (selectedCategory === 'line22') {
+      activePool = allStops.filter(s => !!s.line22);
+    } else if (selectedCategory === 'tram23') {
+      activePool = allStops.filter(s => !!s.tram23);
+    } else {
+      activePool = [...allStops];
+    }
+  }
+
   function selectCategory(cat) {
     selectedCategory = cat;
+    resetActivePool();
+
     if (cat === 'line22') {
-      activePool = allStops.filter(s => s.line22);
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linka 22";
     } else if (cat === 'tram23') {
-      activePool = allStops.filter(s => s.tram23);
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linky 2 a 3 (Tramvaj)";
     } else {
-      activePool = allStops;
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Všechny zastávky";
     }
 
@@ -1037,6 +1071,8 @@
     maxStreak = 0;
     playedHistory = [];
     
+    resetActivePool();
+
     totalGamesPlayed++;
     localStorage.setItem("liberec_guesser_games", totalGamesPlayed);
     checkAchievements();
@@ -1115,12 +1151,13 @@
 
   function loadNextLevel() {
     if (activePool.length === 0) {
-      showStatus(false, "⚠️ V tomto okruhu zatím nejsou žádné zastávky!");
+      clearInterval(timerInterval);
+      endGame("Kolo dokončeno! Poznal jsi všechny zastávky! 🎉");
       return;
     }
 
     const randomIndex = Math.floor(Math.random() * activePool.length);
-    currentLevel = activePool[randomIndex];
+    currentLevel = activePool.splice(randomIndex, 1)[0];
 
     stopImg.src = currentLevel.image;
 
@@ -1132,13 +1169,14 @@
     input.value = "";
     userSelectedCoords = null;
     roundStartTime = Date.now();
+    usedHintInCurrentRound = false;
 
-    if (userMarker) map && map.removeLayer(userMarker);
-    if (correctMarker) map && map.removeLayer(correctMarker);
-    if (polyline) map && map.removeLayer(polyline);
+    if (userMarker && map) map.removeLayer(userMarker);
+    if (correctMarker && map) map.removeLayer(correctMarker);
+    if (polyline && map) map.removeLayer(polyline);
 
     if (gameDifficulty === 'geoguessr') {
-      map && map.setView([50.7500, 15.0400], 13);
+      if (map) map.setView([50.7500, 15.0400], 13);
     } else {
       if (window.innerWidth > 600) input.focus();
     }
@@ -1151,9 +1189,12 @@
   }
 
   function buyHint(type) {
+    if (!currentLevel) return;
+
     if (type === 'text') {
       if (score >= 50) {
         score -= 50;
+        usedHintInCurrentRound = true;
         playSound('hint');
         updateStats();
         
@@ -1175,9 +1216,12 @@
     } else if (type === 'zone') {
       if (score >= 30) {
         score -= 30;
+        usedHintInCurrentRound = true;
         playSound('hint');
         updateStats();
-        document.getElementById("hintDisplay").innerText = "📍 Zóna: " + currentLevel.zone;
+        
+        const zoneText = currentLevel.zone || "Neznámá oblast";
+        document.getElementById("hintDisplay").innerText = "📍 Zóna: " + zoneText;
       } else {
         showStatus(false, "⚠️ Na nápovědu potřebuješ 30 bodů!");
       }
@@ -1224,14 +1268,14 @@
       score += earned;
       streak++;
       if (streak > maxStreak) maxStreak = streak;
-      playedHistory.push({ name: currentLevel.answer, status: true });
+      playedHistory.push({ name: currentLevel.answer, status: true, usedHint: usedHintInCurrentRound });
       updateStats();
       showStatus(true, `🎯 Odchylka: ${dist}m! +${earned} PTS`);
     } else {
       playSound('fail');
       triggerShake();
       streak = 0;
-      playedHistory.push({ name: currentLevel.answer, status: false });
+      playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
       updateStats();
       showStatus(false, `❌ Vedle o ${dist}m! (${currentLevel.answer})`);
     }
@@ -1240,10 +1284,18 @@
   }
 
   function normalizeText(text) {
-    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    if (!text) return "";
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "")
+      .trim();
   }
 
   function submitGuess() {
+    if (!currentLevel) return;
+
     const userGuess = normalizeText(input.value);
     if (!userGuess) return;
 
@@ -1273,7 +1325,7 @@
       const earned = (100 + (streak * 20)) * multiplier;
       score += earned;
       
-      playedHistory.push({ name: currentLevel.answer, status: true });
+      playedHistory.push({ name: currentLevel.answer, status: true, usedHint: usedHintInCurrentRound });
       updateStats();
 
       showStatus(true, `🎉 SPRÁVNĚ! +${earned} PTS ${multiplier > 1 ? '(2x COMBO!)' : ''}`);
@@ -1290,7 +1342,7 @@
 
       if (gameDifficulty === 'sudden') {
         clearInterval(timerInterval);
-        playedHistory.push({ name: currentLevel.answer, status: false });
+        playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
         endGame("Chybný tip v Sudden Death!");
       } else {
         playSound('fail');
@@ -1317,26 +1369,36 @@
 
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
-        playedHistory.push({ name: currentLevel.answer, status: false });
+        if (currentLevel) playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
         endGame("Vypršel ti časový limit!");
       }
     }, 1000);
   }
 
   function endGame(reason) {
-    playSound('fail');
-    triggerShake();
+    if (reason.includes("dokončeno")) {
+      playSound('success');
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+    } else {
+      playSound('fail');
+      triggerShake();
+    }
     
     document.getElementById("goScore").innerText = score;
     document.getElementById("goStreak").innerText = maxStreak;
-    document.getElementById("goTitle").innerText = "Konec hry! ⏰";
+    document.getElementById("goTitle").innerText = reason || "Konec hry!";
     
     const list = document.getElementById("summaryList");
     list.innerHTML = "";
+    
     playedHistory.forEach(item => {
       const div = document.createElement("div");
       div.className = "summary-item " + (item.status ? "ok" : "fail");
-      div.innerHTML = `<span>${item.name}</span> <span>${item.status ? "🟢 Správně" : "🔴 Chyba"}</span>`;
+      
+      let hintTag = item.usedHint ? ` <span style="font-size:0.75rem; color:var(--accent);">(💡 Nápověda)</span>` : '';
+      let statusTag = item.status ? "🟢 Správně" : "🔴 Chyba";
+
+      div.innerHTML = `<span>${item.name}${hintTag}</span> <span>${statusTag}</span>`;
       list.appendChild(div);
     });
 
@@ -1346,7 +1408,10 @@
 
   function backToMenu() {
     clearInterval(timerInterval);
-    if (window.unsubscribeRoom) window.unsubscribeRoom();
+    if (window.unsubscribeRoom) {
+      window.unsubscribeRoom();
+      window.unsubscribeRoom = null;
+    }
     
     document.body.classList.remove("in-game");
     setRandomBackground();
@@ -1364,6 +1429,17 @@
     msg.className = "status-msg " + (isCorrect ? "correct" : "wrong");
     msg.innerText = text;
   }
+
+  // Odchytávání klávesy Enter i pro mapový mód
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      if (document.getElementById("gameScreen").style.display === "flex") {
+        if (gameDifficulty === 'geoguessr') {
+          submitMapGuess();
+        }
+      }
+    }
+  });
 
   input.addEventListener("keypress", (e) => {
     if (e.key === "Enter") submitGuess();
