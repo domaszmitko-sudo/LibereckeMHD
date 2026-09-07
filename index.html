@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MHD & Železnice Guesser Ultra</title>
+  <title>MHD & Železnice Guesser</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <link rel="icon" type="image/png" href="ikona.png">
@@ -287,20 +287,17 @@
 
   <style>
     :root {
-      --bg: #07090e;
-      --card-bg: rgba(13, 17, 23, 0.88);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --input-bg: rgba(22, 27, 34, 0.85);
-      --accent: #ffb703;
-      --accent-glow: rgba(255, 183, 3, 0.25);
-      --accent-hover: #ffa000;
-      --text-main: #f0f6fc;
-      --text-muted: #8b949e;
-      --danger: #ff5252;
-      --success: #2ed573;
-      --purple: #a55eea;
-      --p1-color: #00d2d3;
-      --p2-color: #ff9f43;
+      --bg: #12161f;
+      --card-bg: rgba(22, 27, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --input-bg: rgba(15, 19, 27, 0.8);
+      --accent-purple: #9b51e0;
+      --accent-pink: #e91e63;
+      --accent-yellow: #f2c94c;
+      --text-main: #f0f4f8;
+      --text-muted: #9aa8b8;
+      --danger: #eb5757;
+      --success: #27ae60;
     }
 
     * { 
@@ -325,7 +322,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 12px;
+      padding: 16px;
       position: relative;
     }
 
@@ -335,32 +332,32 @@
       background-size: cover;
       background-position: center;
       z-index: -1;
-      opacity: 0.3;
-      filter: brightness(0.6) blur(4px);
+      opacity: 0.18;
+      filter: grayscale(0.5) blur(8px);
       transition: opacity 0.6s ease, filter 0.6s ease;
     }
 
-    body.in-game .bg-overlay { opacity: 0.12; filter: brightness(0.3) blur(6px); }
+    body.in-game .bg-overlay { opacity: 0.08; filter: blur(12px); }
 
     .app-card {
       background: var(--card-bg);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
       border: 1px solid var(--card-border);
-      border-radius: 28px;
-      padding: 24px;
+      border-radius: 20px;
+      padding: 28px;
       width: 100%;
-      max-width: 640px;
-      max-height: calc(100dvh - 24px);
+      max-width: 780px;
+      max-height: calc(100dvh - 32px);
       display: flex;
       flex-direction: column;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0,0,0,0.5);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
       position: relative;
       overflow-y: auto;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    .app-card.combo-active { border-color: #ff9f43; box-shadow: 0 0 35px rgba(255, 159, 67, 0.3); }
+    .app-card.combo-active { border-color: var(--accent-yellow); box-shadow: 0 0 35px rgba(242, 201, 76, 0.2); }
 
     .shake { animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
     @keyframes shakeAnim {
@@ -370,128 +367,180 @@
       40%, 60% { transform: translate3d(7px, 0, 0); }
     }
 
+    /* HEADER STYLES LIKE CONVOY BANNER */
     .header { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 16px; 
+      margin-bottom: 24px; 
       flex-shrink: 0;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .dpmlj-logo { height: 42px; width: auto; object-fit: contain; }
-    .dpmlj-logo.logo-guessr {
-      height: 52px;
-      width: auto;
-      object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    
+    .brand-title {
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      line-height: 1.1;
     }
-    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
 
     .btn-google {
       background: #ffffff;
       color: #0d1117;
       border: none;
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 600;
       font-size: 0.8rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
       transition: transform 0.2s, background-color 0.2s;
-      box-shadow: 0 4px 12px rgba(255,255,255,0.1);
     }
-    .btn-google:hover { transform: translateY(-1px); background: #f0f0f0; }
-    .btn-google img { width: 16px; height: 16px; }
+    .btn-google:hover { transform: translateY(-1px); background: #e0e0e0; }
+    .btn-google img { width: 15px; height: 15px; }
 
-    .user-profile { display: flex; align-items: center; gap: 6px; background: var(--input-bg); padding: 4px 8px; border-radius: 20px; border: 1px solid var(--card-border); }
-    .user-avatar { width: 24px; height: 24px; border-radius: 50%; }
-    .user-name { font-size: 0.75rem; font-weight: 700; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .btn-logout { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 0.75rem; font-weight: 700; }
+    .user-profile { display: flex; align-items: center; gap: 8px; background: var(--input-bg); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--card-border); }
+    .user-avatar { width: 22px; height: 22px; border-radius: 50%; }
+    .user-name { font-size: 0.78rem; font-weight: 500; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-logout { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 0.75rem; font-weight: 600; margin-left: 4px; }
 
     .btn-icon {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      width: 38px;
-      height: 38px;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-main);
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.9rem;
       transition: all 0.2s ease;
       flex-shrink: 0;
     }
-    .btn-icon:hover { border-color: var(--accent); transform: scale(1.05); }
+    .btn-icon:hover { border-color: #fff; transform: scale(1.05); }
 
-    .stats-bar { display: flex; gap: 6px; }
-    .badge {
-      font-family: 'JetBrains Mono', monospace;
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      padding: 6px 10px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      display: flex;
+    .pill-badge {
+      display: inline-flex;
       align-items: center;
-      gap: 4px;
+      padding: 4px 14px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
     }
-    .timer-badge { color: var(--danger); border-color: rgba(255, 82, 82, 0.25); }
-    .score-badge { color: var(--accent); border-color: rgba(255, 183, 3, 0.25); }
-    .streak-badge { color: #ff9f43; border-color: rgba(255, 159, 67, 0.25); }
+    .pill-purple { background: var(--accent-purple); color: #fff; }
+    .pill-pink { background: var(--accent-pink); color: #fff; }
+    .pill-yellow { background: var(--accent-yellow); color: #000; }
 
-    .menu-screen { display: flex; flex-direction: column; gap: 16px; animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-    .hero-banner { text-align: center; margin-bottom: 2px; }
-    .menu-title {
-      font-size: 1.9rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .stats-bar { display: flex; gap: 12px; }
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
     }
-    .menu-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 300;
+      line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .menu-screen { display: flex; flex-direction: column; gap: 20px; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* LAYOUT LIKE ETS CONVOY BOARD */
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .hero-info-side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-date-box {
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 12px;
+    }
+    .hero-date-val {
+      font-size: 3.2rem;
+      font-weight: 300;
+      line-height: 0.9;
+      letter-spacing: -1px;
+    }
+    .hero-date-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .info-list-side {
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .info-item {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .info-item-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      width: 80px;
+    }
+    .info-item-val {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
 
     .leaderboard-box {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 12px 14px;
+      border-radius: 14px;
+      padding: 14px;
     }
-    .lb-title { font-size: 0.78rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px; }
+    .lb-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px; text-transform: uppercase; }
     .lb-list { display: flex; flex-direction: column; gap: 6px; }
-    .lb-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 10px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.02); }
-    .lb-rank { font-weight: 800; color: var(--accent); width: 22px; font-family: 'JetBrains Mono', monospace; }
-    .lb-avatar { width: 22px; height: 22px; border-radius: 50%; margin-right: 8px; }
-    .lb-name { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lb-score { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--success); }
-
-    .achievements-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-    .ach-item {
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      padding: 6px 10px;
-      border-radius: 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      opacity: 0.4;
-      filter: grayscale(1);
-      transition: all 0.3s ease;
-    }
-    .ach-item.unlocked { opacity: 1; filter: grayscale(0); border-color: rgba(255, 183, 3, 0.4); background: rgba(255, 183, 3, 0.05); box-shadow: 0 0 12px rgba(255,183,3,0.15); }
+    .lb-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 8px; font-size: 0.8rem; }
+    .lb-rank { font-weight: 700; color: var(--accent-yellow); width: 20px; font-family: 'JetBrains Mono', monospace; }
+    .lb-avatar { width: 20px; height: 20px; border-radius: 50%; margin-right: 8px; }
+    .lb-name { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-score { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fff; }
 
     .modes-grid { display: flex; flex-direction: column; gap: 10px; }
 
     .btn-mode {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 12px 16px;
+      border-radius: 14px;
+      padding: 14px 18px;
       color: var(--text-main);
       cursor: pointer;
       display: flex;
@@ -499,47 +548,23 @@
       align-items: center;
       text-align: left;
       width: 100%;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      overflow: hidden;
+      transition: all 0.2s ease;
     }
-    .btn-mode:hover { border-color: rgba(255, 183, 3, 0.5); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); background: rgba(30, 37, 48, 0.8); }
+    .btn-mode:hover { border-color: rgba(255, 255, 255, 0.3); background: rgba(30, 38, 54, 0.9); transform: translateX(3px); }
 
-    .mode-left { display: flex; align-items: center; gap: 12px; text-align: left; }
-    .mode-text-group { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-    .mode-icon-box {
-      width: 38px; height: 38px;
-      flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-    }
-    .mode-title { font-weight: 800; font-size: 0.9rem; text-align: left; letter-spacing: -0.2px; }
-    .mode-desc { font-size: 0.74rem; color: var(--text-muted); margin-top: 2px; text-align: left; }
-
-    .mode-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 700;
-      background: rgba(255, 183, 3, 0.1);
-      color: var(--accent);
-      padding: 4px 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 183, 3, 0.2);
-      flex-shrink: 0;
-    }
+    .mode-left { display: flex; align-items: center; gap: 14px; }
+    .mode-text-group { display: flex; flex-direction: column; }
+    .mode-title { font-weight: 600; font-size: 0.95rem; letter-spacing: -0.2px; }
+    .mode-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
     .info-content {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 14px;
+      padding: 18px;
       font-size: 0.85rem;
-      line-height: 1.5;
+      line-height: 1.6;
       color: var(--text-muted);
-      text-align: left;
     }
     .info-content strong { color: var(--text-main); }
 
@@ -547,34 +572,34 @@
     .game-screen { 
       display: none; 
       flex-direction: column; 
-      gap: 10px;
+      gap: 14px;
       animation: fadeIn 0.3s ease-out; 
     }
 
     .image-frame {
       position: relative;
       width: 100%;
-      height: 38dvh;
-      max-height: 300px;
-      min-height: 180px;
-      border-radius: 18px;
+      height: 42dvh;
+      max-height: 340px;
+      min-height: 200px;
+      border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--card-border);
-      background: var(--input-bg);
+      background: #000;
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
       flex-shrink: 0;
     }
     .image-frame img { width: 100%; height: 100%; object-fit: contain; }
 
     #mapContainer { 
       width: 100%; 
-      height: 36dvh; 
-      max-height: 260px; 
+      height: 38dvh; 
+      max-height: 300px; 
       min-height: 180px; 
-      border-radius: 18px; 
+      border-radius: 16px; 
       border: 1px solid var(--card-border); 
       overflow: hidden; 
       display: none; 
@@ -582,97 +607,92 @@
     }
 
     .hint-display {
-      font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
-      letter-spacing: 0.5px;
       text-align: center;
-      color: var(--accent);
-      padding: 6px 10px;
-      background: rgba(255, 183, 3, 0.05);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 183, 3, 0.15);
+      color: var(--accent-yellow);
+      padding: 8px 12px;
+      background: rgba(242, 201, 76, 0.08);
+      border-radius: 10px;
+      border: 1px solid rgba(242, 201, 76, 0.2);
     }
 
-    .controls { display: flex; flex-direction: column; gap: 8px; }
-    .input-row { display: flex; gap: 8px; }
+    .controls { display: flex; flex-direction: column; gap: 10px; }
+    .input-row { display: flex; gap: 10px; }
 
     input[type="text"] {
       flex: 1;
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: 12px;
+      padding: 12px 16px;
       color: var(--text-main);
       font-size: 0.9rem;
       font-family: inherit;
       outline: none;
       transition: all 0.2s;
     }
-    input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    input[type="text"]:focus { border-color: rgba(255,255,255,0.4); }
 
-    .hint-btns { display: flex; gap: 6px; }
+    .hint-btns { display: flex; gap: 8px; }
     .btn-hint {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 0 12px;
-      color: var(--accent);
+      padding: 0 14px;
+      color: var(--text-muted);
       cursor: pointer;
       font-size: 0.78rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
+      font-weight: 600;
       transition: all 0.2s;
       white-space: nowrap;
     }
-    .btn-hint:hover { border-color: var(--accent); background: rgba(255, 183, 3, 0.08); }
+    .btn-hint:hover { border-color: var(--text-main); color: var(--text-main); }
 
     .btn-submit {
-      background: var(--accent);
-      color: #07090e;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 800;
+      background: #ffffff;
+      color: #000;
+      font-weight: 700;
       border: none;
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 12px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       width: 100%;
     }
-    .btn-submit:hover { background: var(--accent-hover); box-shadow: 0 6px 20px var(--accent-glow); }
+    .btn-submit:hover { background: #e0e0e0; }
 
-    .status-msg { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; text-align: center; min-height: 20px; font-weight: 700; }
+    .status-msg { font-size: 0.85rem; text-align: center; min-height: 20px; font-weight: 600; }
     .correct { color: var(--success); }
     .wrong { color: var(--danger); }
 
-    .btn-back { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; padding: 6px; align-self: center; transition: color 0.2s; font-weight: 700; }
+    .btn-back { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; padding: 6px; align-self: center; transition: color 0.2s; letter-spacing: 0.5px; }
     .btn-back:hover { color: var(--text-main); }
 
-    .mp-container { display: flex; gap: 8px; margin-bottom: 4px; }
-    .mp-box { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; text-align: center; font-family: 'JetBrains Mono', monospace; }
-    .mp-score { font-size: 1.2rem; font-weight: 800; }
-    .mp-key { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+    .mp-container { display: flex; gap: 10px; margin-bottom: 4px; }
+    .mp-box { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; text-align: center; }
+    .mp-score { font-size: 1.4rem; font-weight: 300; margin-top: 2px; }
+    .mp-key { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
 
-    .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 12px; animation: fadeIn 0.3s ease-out; }
-    .go-title { font-size: 1.4rem; font-weight: 800; color: var(--danger); text-align: center; }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; width: 100%; display: flex; justify-content: space-around; font-family: 'JetBrains Mono', monospace; }
+    .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
+    .go-title { font-size: 1.5rem; font-weight: 400; text-align: center; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-content: space-around; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
-    .go-stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-    .go-stat-lbl { font-size: 0.68rem; color: var(--text-muted); }
+    .go-stat-val { font-size: 1.8rem; font-weight: 300; }
+    .go-stat-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
 
-    .summary-list { width: 100%; max-height: 140px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-    .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; padding: 6px 8px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); }
-    .summary-item.ok { border-left: 3px solid var(--success); }
-    .summary-item.fail { border-left: 3px solid var(--danger); }
+    .summary-list { width: 100%; max-height: 160px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); }
+    .summary-item.ok { border-left: 2px solid var(--success); }
+    .summary-item.fail { border-left: 2px solid var(--danger); }
 
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100dvh;
-      background: rgba(7, 9, 14, 0.88);
-      backdrop-filter: blur(14px);
+      background: rgba(18, 22, 31, 0.9);
+      backdrop-filter: blur(16px);
       z-index: 100;
       justify-content: center;
       align-items: center;
@@ -681,8 +701,8 @@
     .modal-box {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 24px;
       width: 100%;
       max-width: 400px;
       text-align: center;
@@ -691,65 +711,30 @@
     }
     .room-code-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
       letter-spacing: 6px;
       background: var(--input-bg);
-      padding: 8px;
+      padding: 10px;
       border-radius: 12px;
       border: 1px solid var(--card-border);
-      margin: 12px 0;
+      margin: 14px 0;
     }
 
-    /* MOBILNÍ SPECIFICKÁ OPTIMALIZACE */
-    @media (max-width: 600px) {
-      body { padding: 6px; }
-      .app-card { 
-        padding: 16px 12px; 
-        border-radius: 20px; 
-        max-height: 100dvh;
-      }
-      .header { margin-bottom: 10px; }
-      .dpmlj-logo.logo-guessr { height: 40px; }
-      .menu-title { font-size: 1.5rem; }
-      .btn-mode { padding: 10px 12px; border-radius: 14px; }
-      .mode-title { font-size: 0.85rem; }
-      .mode-desc { font-size: 0.7rem; }
-      .mode-icon-box { width: 34px; height: 34px; font-size: 1rem; }
-
-      .image-frame {
-        height: 30dvh;
-        max-height: 220px;
-        min-height: 150px;
-        border-radius: 14px;
-      }
-
-      #mapContainer {
-        height: 30dvh;
-        max-height: 200px;
-        min-height: 150px;
-        border-radius: 14px;
-      }
-
-      .input-row {
-        flex-direction: column;
-        gap: 6px;
-      }
-      .hint-btns {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
-      .btn-hint {
-        padding: 8px;
-        text-align: center;
-        border-radius: 10px;
-        font-size: 0.75rem;
-      }
-
-      .badge { padding: 4px 8px; font-size: 0.7rem; }
+    /* RESPONSIVE OPTIMIZATION */
+    @media (max-width: 680px) {
+      body { padding: 8px; }
+      .app-card { padding: 18px 16px; border-radius: 16px; }
+      .brand-title { font-size: 1.6rem; }
+      .hero-layout { grid-template-columns: 1fr; gap: 16px; }
+      .hero-date-val { font-size: 2.4rem; }
+      .btn-mode { padding: 12px; }
+      .image-frame { height: 32dvh; }
+      #mapContainer { height: 30dvh; }
+      .input-row { flex-direction: column; gap: 8px; }
+      .hint-btns { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+      .btn-hint { padding: 10px; text-align: center; }
     }
   </style>
 </head>
@@ -760,7 +745,8 @@
 <div class="app-card" id="appCard">
   <div class="header">
     <div class="brand">
-      <img src="logo 2.png" alt="Liberec Guessr Logo" class="dpmlj-logo logo-guessr">
+      <h1 class="brand-title">MHD & Železnice</h1>
+      <div class="brand-subtitle">Guesser Ultra • Liberec & ČR Edition</div>
     </div>
     
     <div class="header-actions">
@@ -769,265 +755,273 @@
       <button class="btn-icon" id="soundBtn" onclick="toggleSound()">🔊</button>
       
       <div class="stats-bar" id="statsBar" style="display: none;">
-        <div class="badge streak-badge">🔥 <span id="streak">0</span></div>
-        <div class="badge score-badge">⭐ <span id="score">0</span></div>
-        <div class="badge timer-badge" id="timerBadge">⏱️ <span id="timer">30</span>s</div>
+        <div class="stat-block">
+          <div class="stat-val" id="streak">0</div>
+          <div class="stat-lbl">Streak</div>
+        </div>
+        <div class="stat-block" style="border-left: 1px solid rgba(255,255,255,0.15); padding-left: 12px;">
+          <div class="stat-val" id="score">0</div>
+          <div class="stat-lbl">Body</div>
+        </div>
+        <div class="stat-block" id="timerBadge" style="border-left: 1px solid rgba(255,255,255,0.15); padding-left: 12px;">
+          <div class="stat-val" id="timer">30</div>
+          <div class="stat-lbl">Sekund</div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- HLAVNÍ ÚVODNÍ OBRAZOVKA -->
   <div id="mainHomeScreen" class="menu-screen">
-    <div class="hero-banner">
-      <h1 class="menu-title">Vítej v hře</h1>
-      <p class="menu-subtitle">Vyber si z nabídky a hraj</p>
+    <div class="hero-layout">
+      <div class="hero-info-side">
+        <div class="hero-date-box">
+          <div class="hero-date-val">2026</div>
+          <div class="hero-date-sub">Poznávací mapa zastávek & fotomíst</div>
+        </div>
+
+        <div class="info-list-side">
+          <div class="info-item">
+            <span class="info-item-lbl">Lokace</span>
+            <span class="info-item-val">Liberec & ČR</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item-lbl">Módy</span>
+            <span class="info-item-val">4 Herní styly</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="leaderboard-box">
+        <div class="lb-title">
+          <span>Najlepší hráči</span>
+          <span id="highScoreVal" style="color: #fff;">0 PTS</span>
+        </div>
+        <div class="lb-list" id="leaderboardList">
+          <div style="font-size:0.8rem; color:var(--text-muted); text-align:center;">Načítám tabulku...</div>
+        </div>
+      </div>
     </div>
 
     <div class="modes-grid">
       <button class="btn-mode" onclick="openRailCategories()">
         <div class="mode-left">
-          <div class="mode-icon-box">🚂</div>
+          <span class="pill-badge pill-purple">Železnice</span>
           <div class="mode-text-group">
             <div class="mode-title">Železniční hádanka</div>
-            <div class="mode-desc">Poznej železniční tratě a stanice v ČR</div>
+            <div class="mode-desc">Poznej tratě, fotomísta a stanice v ČR</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">NOVÉ</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
       </button>
 
       <button class="btn-mode" onclick="openMhdCategories()">
         <div class="mode-left">
-          <div class="mode-icon-box">🪪</div>
+          <span class="pill-badge pill-pink">MHD</span>
           <div class="mode-text-group">
             <div class="mode-title">Liberecké MHD</div>
             <div class="mode-desc">Poznávačka zastávek v Libereckém kraji</div>
           </div>
         </div>
-        <span class="mode-tag">HRÁT</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
       </button>
 
       <button class="btn-mode" onclick="openAboutProject()">
         <div class="mode-left">
-          <div class="mode-icon-box">ℹ️</div>
+          <span class="pill-badge pill-yellow">Info</span>
           <div class="mode-text-group">
             <div class="mode-title">O projektu</div>
             <div class="mode-desc">Informace o vývoji a tvůrcích</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">INFO</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
       </button>
 
       <button class="btn-mode" onclick="openSettings()">
         <div class="mode-left">
-          <div class="mode-icon-box">⚙️</div>
+          <span class="pill-badge" style="background: rgba(255,255,255,0.1); color: #fff;">Setup</span>
           <div class="mode-text-group">
             <div class="mode-title">Nastavení</div>
-            <div class="mode-desc">Zvuky, téma a preference hry</div>
+            <div class="mode-desc">Zvuky, preference a možnost hry</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: var(--purple); border-color: rgba(165,94,234,0.3);">SETUP</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
       </button>
     </div>
   </div>
 
   <!-- VÝBĚR KATEGORIE - ŽELEZNICE -->
   <div id="railCategoryScreen" class="menu-screen" style="display: none;">
-    <div class="hero-banner">
-      <h1 class="menu-title">Železniční hádanky</h1>
-      <p class="menu-subtitle">Vyber si železniční okruh</p>
+    <div>
+      <span class="pill-badge pill-purple" style="margin-bottom: 8px;">Železniční Okruhy</span>
+      <h2 style="font-size: 1.6rem; font-weight: 400;">Vyber si kategorii</h2>
     </div>
 
     <div class="modes-grid">
       <button class="btn-mode" onclick="selectCategory('rail_all')">
         <div class="mode-left">
-          <div class="mode-icon-box">🚆</div>
           <div class="mode-text-group">
             <div class="mode-title">Všechny stanice</div>
             <div class="mode-desc">Kompletní balíček všech železničních stanic</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">STANICE</span>
+        <span class="pill-badge pill-purple">Stanice</span>
       </button>
 
       <button class="btn-mode" onclick="selectCategory('rail_photo')">
         <div class="mode-left">
-          <div class="mode-icon-box">📸</div>
           <div class="mode-text-group">
             <div class="mode-title">Fotomísta v ČR</div>
             <div class="mode-desc">Poznávej známe fotofleky podél tratí</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">FOTOMÍSTA</span>
+        <span class="pill-badge pill-yellow">Fotofleky</span>
       </button>
     </div>
 
-    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+    <button class="btn-back" onclick="backToMainHome()">← ZPĚT DO MENU</button>
   </div>
 
   <!-- VÝBĚR LINKY (MHD LIBEREC) -->
   <div id="categoryScreen" class="menu-screen" style="display: none;">
-    <div class="hero-banner">
-      <h1 class="menu-title">Poznej zastávku</h1>
-      <p class="menu-subtitle">Vyber si okruh zastávek pro hru</p>
-    </div>
-
-    <div class="leaderboard-box">
-      <div class="lb-title">
-        <span>🏆 TOP 5 HRÁČŮ (GLOBÁLNÍ)</span>
-        <span id="highScoreVal" style="font-family: 'JetBrains Mono', monospace;">0 PTS</span>
-      </div>
-      <div class="lb-list" id="leaderboardList">
-        <div style="font-size:0.8rem; color:var(--text-muted); text-align:center;">Načítám tabulku...</div>
-      </div>
-    </div>
-
-    <div class="achievements-row">
-      <div class="ach-item" id="ach1" title="Odehraj 10 her">🥇 Srdcař DPMLJ</div>
-      <div class="ach-item" id="ach2" title="Uhádni zastávku do 3 sekund">⚡ Rychlík</div>
-      <div class="ach-item" id="ach3" title="Dosáhni streaku 10">🔥 Liberecký Guru</div>
+    <div>
+      <span class="pill-badge pill-pink" style="margin-bottom: 8px;">MHD Liberec</span>
+      <h2 style="font-size: 1.6rem; font-weight: 400;">Vyber si okruh zastávek</h2>
     </div>
 
     <div class="modes-grid">
       <button class="btn-mode" onclick="selectCategory('line22')">
         <div class="mode-left">
-          <div class="mode-icon-box">🚌</div>
           <div class="mode-text-group">
             <div class="mode-title">Linka 22</div>
             <div class="mode-desc">OC Nisa ➔ Kunratická sídliště</div>
           </div>
         </div>
-        <span class="mode-tag">BUS 22</span>
+        <span class="pill-badge pill-pink">Bus 22</span>
       </button>
 
       <button class="btn-mode" onclick="selectCategory('tram23')">
         <div class="mode-left">
-          <div class="mode-icon-box">🚃</div>
           <div class="mode-text-group">
             <div class="mode-title">Linky 2 a 3</div>
             <div class="mode-desc">Lidové sady ➔ Horní Hanychov</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #00d2d3; border-color: rgba(0,210,211,0.3);">TRAM 2/3</span>
+        <span class="pill-badge pill-purple">Tram 2/3</span>
       </button>
 
       <button class="btn-mode" onclick="selectCategory('all')">
         <div class="mode-left">
-          <div class="mode-icon-box">🪪</div>
           <div class="mode-text-group">
             <div class="mode-title">Všechny zastávky</div>
             <div class="mode-desc">Kompletní síť Liberec & okolí</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: var(--purple); border-color: rgba(165,94,234,0.3);">VŠECHNO</span>
+        <span class="pill-badge pill-yellow">Všechno</span>
       </button>
     </div>
 
-    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+    <button class="btn-back" onclick="backToMainHome()">← ZPĚT DO MENU</button>
   </div>
 
   <!-- O PROJEKTU -->
   <div id="aboutScreen" class="menu-screen" style="display: none;">
-    <div class="hero-banner">
-      <h1 class="menu-title">O projektu</h1>
-      <p class="menu-subtitle">MHD Liberec & Železnice Guesser Ultra</p>
+    <div>
+      <span class="pill-badge pill-yellow" style="margin-bottom: 8px;">Informace</span>
+      <h2 style="font-size: 1.6rem; font-weight: 400;">O projektu</h2>
     </div>
 
     <div class="info-content">
-      <p>Tento projekt je komunitní poznávací hra navržená pro fanoušky veřejné dopravy, MHD a železnice v ČR.</p><br>
+      <p>Komunitní poznávací hra navržená pro fanoušky veřejné dopravy, MHD a železnice v ČR.</p><br>
       <p><strong>Autor:</strong> Dominik</p>
-      <p><strong>Cíl:</strong> Otestovat tvé znalosti libereckých autobusových/tramvajových zastávek a železničních stanic v moderním vizuálním kabátě!</p>
+      <p><strong>Cíl:</strong> Otestovat tvé znalosti libereckých autobusových/tramvajových zastávek a železničních stanic v ultra clean vizuálním kabátě!</p>
     </div>
 
-    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+    <button class="btn-back" onclick="backToMainHome()">← ZPĚT DO MENU</button>
   </div>
 
   <!-- NASTAVENÍ -->
   <div id="settingsScreen" class="menu-screen" style="display: none;">
-    <div class="hero-banner">
-      <h1 class="menu-title">Nastavení</h1>
-      <p class="menu-subtitle">Přizpůsob si hru podle sebe</p>
+    <div>
+      <span class="pill-badge" style="background: rgba(255,255,255,0.1); color: #fff; margin-bottom: 8px;">Nastavení</span>
+      <h2 style="font-size: 1.6rem; font-weight: 400;">Možnosti hry</h2>
     </div>
 
     <div class="modes-grid">
       <button class="btn-mode" onclick="toggleSound()">
         <div class="mode-left">
-          <div class="mode-icon-box">🔊</div>
           <div class="mode-text-group">
             <div class="mode-title">Zvuky ve hře</div>
             <div class="mode-desc">Zapnout nebo vypnout zvukové efekty</div>
           </div>
         </div>
-        <span class="mode-tag" id="soundStatusTag">ZAPNUTO</span>
+        <span class="pill-badge pill-yellow" id="soundStatusTag">Zapnuto</span>
       </button>
     </div>
 
-    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+    <button class="btn-back" onclick="backToMainHome()">← ZPĚT DO MENU</button>
   </div>
 
+  <!-- HERNÍ MÓD -->
   <div id="difficultyScreen" class="menu-screen" style="display: none;">
-    <div class="hero-banner">
-      <h1 class="menu-title">Herní Mód</h1>
-      <p class="menu-subtitle" id="selectedCategoryTitle">Vyber si styl hry</p>
+    <div>
+      <span class="pill-badge pill-purple" style="margin-bottom: 8px;" id="selectedCategoryTitle">Okruh</span>
+      <h2 style="font-size: 1.6rem; font-weight: 400;">Zvol herní mód</h2>
     </div>
 
     <div class="modes-grid">
       <button class="btn-mode" onclick="startGame('classic')">
         <div class="mode-left">
-          <div class="mode-icon-box">⏱️</div>
           <div class="mode-text-group">
             <div class="mode-title">Klasik (30s)</div>
-            <div class="mode-desc">30s limit + psaní</div>
+            <div class="mode-desc">30s limit na každou otázku</div>
           </div>
         </div>
-        <span class="mode-tag">STANDARD</span>
+        <span class="pill-badge pill-purple">Standard</span>
       </button>
 
       <button class="btn-mode" onclick="startGame('geoguessr')">
         <div class="mode-left">
-          <div class="mode-icon-box">🗺️</div>
           <div class="mode-text-group">
             <div class="mode-title">GeoGuessr Mód</div>
             <div class="mode-desc">Klikni přesně na mapu podle fotky</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">MAPA</span>
+        <span class="pill-badge pill-yellow">Mapa</span>
       </button>
 
       <button class="btn-mode" onclick="startGame('chill')">
         <div class="mode-left">
-          <div class="mode-icon-box">☕</div>
           <div class="mode-text-group">
             <div class="mode-title">Chill Mód</div>
-            <div class="mode-desc">Bez časovače, bez stresu</div>
+            <div class="mode-desc">Bez časovače, čistá pohoda</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">EASY</span>
+        <span class="pill-badge pill-pink">Easy</span>
       </button>
 
       <button class="btn-mode" onclick="startGame('sudden')">
         <div class="mode-left">
-          <div class="mode-icon-box">💀</div>
           <div class="mode-text-group">
             <div class="mode-title">Sudden Death</div>
             <div class="mode-desc">Jedna chyba = okamžitý konec</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #ff4757; border-color: rgba(255,71,87,0.3);">HARD</span>
+        <span class="pill-badge" style="background: var(--danger); color:#fff;">Hard</span>
       </button>
 
       <button class="btn-mode" onclick="openOnlineModal()">
         <div class="mode-left">
-          <div class="mode-icon-box">🌐</div>
           <div class="mode-text-group">
             <div class="mode-title">Online 1v1</div>
             <div class="mode-desc">Vytvoř místnost a vyzvi kámoše přes kód</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #00d2d3; border-color: rgba(0,210,211,0.3);">ONLINE</span>
+        <span class="pill-badge pill-yellow">Online</span>
       </button>
     </div>
 
-    <button class="btn-back" onclick="backToCategories()">ZPĚT NA VÝBĚR</button>
+    <button class="btn-back" onclick="backToCategories()">← ZPĚT NA OKRUHY</button>
   </div>
 
   <div id="gameScreen" class="game-screen">
@@ -1040,14 +1034,14 @@
 
     <div class="mp-container" id="mpContainer" style="display: none;">
       <div class="mp-box" id="p1Box">
-        <div style="color: var(--p1-color); font-weight:800;" id="p1OnlineName">HRÁČ 1</div>
+        <div style="font-weight:600; font-size:0.8rem;" id="p1OnlineName">HRÁČ 1</div>
         <div class="mp-score" id="p1Score">0</div>
-        <div class="mp-key" id="p1Subtext">ŽIVÉ SKÓRE</div>
+        <div class="mp-key" id="p1Subtext">SKÓRE</div>
       </div>
       <div class="mp-box" id="p2Box">
-        <div style="color: var(--p2-color); font-weight:800;" id="p2OnlineName">HRÁČ 2</div>
+        <div style="font-weight:600; font-size:0.8rem;" id="p2OnlineName">HRÁČ 2</div>
         <div class="mp-score" id="p2Score">0</div>
-        <div class="mp-key" id="p2Subtext">ŽIVÉ SKÓRE</div>
+        <div class="mp-key" id="p2Subtext">SKÓRE</div>
       </div>
     </div>
 
@@ -1055,11 +1049,11 @@
       <div class="input-row">
         <input type="text" id="guessInput" placeholder="Napiš název..." autocomplete="off">
         <div class="hint-btns">
-          <button class="btn-hint" onclick="buyHint('text')" title="-50 bodů">💡 Písmena</button>
-          <button class="btn-hint" onclick="buyHint('info')" title="Zadarmo">💡 Nápověda</button>
+          <button class="btn-hint" onclick="buyHint('text')">💡 Písmena (-50)</button>
+          <button class="btn-hint" onclick="buyHint('info')">💡 Nápověda</button>
         </div>
       </div>
-      <button class="btn-submit" onclick="submitGuess()">Odeslat tip 🎯</button>
+      <button class="btn-submit" onclick="submitGuess()">Odeslat tip</button>
     </div>
 
     <div class="controls" id="mapControls" style="display: none;">
@@ -1067,53 +1061,53 @@
     </div>
 
     <div id="statusMsg" class="status-msg"></div>
-    <button class="btn-back" onclick="backToMenu()">ESC / ZPĚT DO MENU</button>
+    <button class="btn-back" onclick="backToMenu()">ESC / OPUSŤ HRU</button>
   </div>
 
   <div id="gameOverScreen" class="game-over-screen">
-    <div class="go-title" id="goTitle">GG! Kolo dokončeno 🔥</div>
+    <div class="go-title" id="goTitle">Kolo dokončeno</div>
 
     <div class="go-stats">
       <div class="go-stat-item">
         <span class="go-stat-val" id="goScore">0</span>
         <span class="go-stat-lbl">SKÓRE</span>
       </div>
-      <div class="go-stat-item">
+      <div class="go-stat-item" style="border-left: 1px solid rgba(255,255,255,0.15); padding-left: 20px;">
         <span class="go-stat-val" id="goStreak">0</span>
         <span class="go-stat-lbl">MAX STREAK</span>
       </div>
     </div>
 
-    <p style="font-size: 0.8rem; color: var(--text-muted); align-self: start;">Přehled odehraných položek:</p>
+    <p style="font-size: 0.75rem; color: var(--text-muted); align-self: start; text-transform: uppercase;">Přehled kola:</p>
     <div class="summary-list" id="summaryList"></div>
 
-    <button class="btn-submit" style="width: 100%;" onclick="startGame(gameDifficulty)">Hrát znovu 🔄</button>
-    <button class="btn-back" onclick="backToMenu()">ZPĚT DO HLAVNÍHO MENU</button>
+    <button class="btn-submit" style="width: 100%;" onclick="startGame(gameDifficulty)">Hrát znovu</button>
+    <button class="btn-back" onclick="backToMenu()">← ZPĚT DO MENU</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="onlineModal">
   <div class="modal-box">
     <div id="onlineLobbyView">
-      <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">Online 1v1 Místnost</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Vytvoř novou místnost nebo zadej kód od kámoše</p>
+      <h2 style="font-size: 1.3rem; font-weight: 500; margin-bottom: 6px;">Online 1v1 Místnost</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px;">Vytvoř novou místnost nebo zadej kód</p>
 
-      <button class="btn-submit" style="width: 100%; margin-bottom: 12px;" onclick="createOnlineRoom()">Vytvořit novou hru 🎮</button>
+      <button class="btn-submit" style="width: 100%; margin-bottom: 12px;" onclick="createOnlineRoom()">Vytvořit novou hru</button>
 
-      <div style="margin: 8px 0; font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NEBO</div>
+      <div style="margin: 10px 0; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">nebo</div>
 
       <div class="input-row" style="margin-bottom: 12px;">
-        <input type="text" id="roomCodeInput" placeholder="Zadej kód místnosti" style="text-transform: uppercase; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800;">
+        <input type="text" id="roomCodeInput" placeholder="Zadej kód" style="text-transform: uppercase; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">
       </div>
-      <button class="btn-submit" style="width: 100%; background: var(--p1-color);" onclick="joinOnlineRoom()">Připojit se do hry 🚀</button>
-      <button class="btn-back" onclick="closeOnlineModal()">ZRUŠIT</button>
+      <button class="btn-submit" style="width: 100%; background: var(--accent-purple); color:#fff;" onclick="joinOnlineRoom()">Připojit se do hry</button>
+      <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 10px;">ZRUŠIT</button>
     </div>
 
     <div id="onlineRoomView" style="display: none;">
-      <h2 style="font-size: 1.1rem; font-weight: 800;">Kód tvé místnosti:</h2>
+      <h2 style="font-size: 1rem; font-weight: 400; color: var(--text-muted);">Kód místnosti:</h2>
       <div class="room-code-display" id="displayRoomCode">----</div>
-      <p style="font-size: 0.8rem; color: var(--accent); font-weight: 700;" id="waitingStatus">Čekám na druhého hráče... ⏳</p>
-      <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 14px;">Odejít z místnosti</button>
+      <p style="font-size: 0.8rem; color: var(--accent-yellow);" id="waitingStatus">Čekám na druhého hráče... ⏳</p>
+      <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 14px;">Odejít</button>
     </div>
   </div>
 </div>
@@ -1134,7 +1128,7 @@
     soundEnabled = !soundEnabled;
     document.getElementById("soundBtn").innerText = soundEnabled ? "🔊" : "🔇";
     const statusTag = document.getElementById("soundStatusTag");
-    if (statusTag) statusTag.innerText = soundEnabled ? "ZAPNUTO" : "VYPNUTO";
+    if (statusTag) statusTag.innerText = soundEnabled ? "Zapnuto" : "Vypnuto";
   }
 
   function playSound(type) {
@@ -1265,13 +1259,6 @@
   let totalGamesPlayed = parseInt(localStorage.getItem("liberec_guesser_games") || 0);
   
   document.getElementById("highScoreVal").innerText = highScore + " PTS";
-  checkAchievements();
-
-  function checkAchievements() {
-    if (totalGamesPlayed >= 10) document.getElementById("ach1").classList.add("unlocked");
-    if (localStorage.getItem("ach_speed")) document.getElementById("ach2").classList.add("unlocked");
-    if (localStorage.getItem("ach_guru")) document.getElementById("ach3").classList.add("unlocked");
-  }
 
   function initMap() {
     if (!map) {
@@ -1307,17 +1294,14 @@
     selectedCategory = cat;
     resetActivePool();
 
-    if (cat === 'line22') {
-      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linka 22";
-    } else if (cat === 'tram23') {
-      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linky 2 a 3 (Tramvaj)";
-    } else if (cat === 'rail_all') {
-      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Železniční stanice";
-    } else if (cat === 'rail_photo') {
-      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Fotomísta v ČR";
-    } else {
-      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Všechny zastávky MHD";
-    }
+    const titleMap = {
+      'line22': 'Linka 22',
+      'tram23': 'Linky 2/3',
+      'rail_all': 'Železniční Stanice',
+      'rail_photo': 'Fotomísta ČR',
+      'all': 'Všechny Zastávky'
+    };
+    document.getElementById("selectedCategoryTitle").innerText = titleMap[cat] || 'Okruh';
 
     document.getElementById("categoryScreen").style.display = "none";
     document.getElementById("railCategoryScreen").style.display = "none";
@@ -1344,7 +1328,6 @@
 
     totalGamesPlayed++;
     localStorage.setItem("liberec_guesser_games", totalGamesPlayed);
-    checkAchievements();
 
     updateStats();
     
@@ -1367,18 +1350,14 @@
       document.getElementById("textControls").style.display = "flex";
       document.getElementById("statsBar").style.display = "none";
       document.getElementById("mpContainer").style.display = "flex";
-      document.getElementById("p1Subtext").innerText = "ŽIVÉ SKÓRE";
-      document.getElementById("p2Subtext").innerText = "ŽIVÉ SKÓRE";
-      document.getElementById("textControls").style.opacity = "1";
-      document.getElementById("textControls").style.pointerEvents = "all";
+      document.getElementById("p1Subtext").innerText = "SKÓRE";
+      document.getElementById("p2Subtext").innerText = "SKÓRE";
     } else {
       document.getElementById("mapContainer").style.display = "none";
       document.getElementById("mapControls").style.display = "none";
       document.getElementById("textControls").style.display = "flex";
       document.getElementById("mpContainer").style.display = "none";
       document.getElementById("statsBar").style.display = "flex";
-      document.getElementById("textControls").style.opacity = "1";
-      document.getElementById("textControls").style.pointerEvents = "all";
 
       if (gameDifficulty === 'chill') {
         document.getElementById("timerBadge").style.display = "none";
@@ -1395,11 +1374,6 @@
   function updateStats() {
     document.getElementById("score").innerText = score;
     document.getElementById("streak").innerText = streak;
-
-    if (streak >= 10) {
-      localStorage.setItem("ach_guru", "1");
-      checkAchievements();
-    }
 
     if (streak >= 3) {
       appCard.classList.add("combo-active");
@@ -1421,7 +1395,7 @@
   function loadNextLevel() {
     if (activePool.length === 0) {
       clearInterval(timerInterval);
-      endGame("Kolo dokončeno! Poznal jsi všechny položky! 🎉");
+      endGame("Kolo dokončeno!");
       return;
     }
 
@@ -1449,7 +1423,7 @@
     if (gameDifficulty === 'geoguessr') {
       if (map) map.setView([currentLevel.lat, currentLevel.lng], 9);
     } else {
-      if (window.innerWidth > 600) input.focus();
+      if (window.innerWidth > 680) input.focus();
     }
     
     if (gameDifficulty !== 'chill' && gameDifficulty !== 'online') {
@@ -1485,11 +1459,11 @@
         hintElem.innerText = hint;
         hintElem.style.display = "block";
       } else {
-        showStatus(false, "⚠️ Na nápovědu potřebuješ 50 bodů!");
+        showStatus(false, "⚠️ Potřebuješ 50 bodů!");
       }
     } else if (type === 'info') {
       playSound('hint');
-      const textHint = currentLevel.hint || "Pro tuto položku není popis k dispozici.";
+      const textHint = currentLevel.hint || "Bez popisu.";
       hintElem.innerText = "📍 " + textHint;
       hintElem.style.display = "block";
     }
@@ -1521,7 +1495,7 @@
     const dist = getDistanceInMeters(userSelectedCoords.lat, userSelectedCoords.lng, target[0], target[1]);
 
     correctMarker = L.marker(target).addTo(map).bindPopup("Správně: " + currentLevel.answer).openPopup();
-    polyline = L.polyline([userSelectedCoords, target], {color: '#ffb703', weight: 4}).addTo(map);
+    polyline = L.polyline([userSelectedCoords, target], {color: '#f2c94c', weight: 3}).addTo(map);
     map.fitBounds(polyline.getBounds(), {padding: [20, 20]});
 
     let earned = 0;
@@ -1537,14 +1511,14 @@
       if (streak > maxStreak) maxStreak = streak;
       playedHistory.push({ name: currentLevel.answer, status: true, usedHint: usedHintInCurrentRound });
       updateStats();
-      showStatus(true, `🎯 Odchylka: ${dist}m! +${earned} PTS`);
+      showStatus(true, `Odchylka: ${dist}m! +${earned} PTS`);
     } else {
       playSound('fail');
       triggerShake();
       streak = 0;
       playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
       updateStats();
-      showStatus(false, `❌ Vedle o ${dist}m! (${currentLevel.answer})`);
+      showStatus(false, `Vedle o ${dist}m! (${currentLevel.answer})`);
     }
 
     setTimeout(loadNextLevel, 3000);
@@ -1567,20 +1541,14 @@
     if (!userGuess) return;
 
     const correctAnswer = normalizeText(currentLevel.answer);
-    const timeTaken = (Date.now() - roundStartTime) / 1000;
 
     if (userGuess === correctAnswer) {
       clearInterval(timerInterval);
       playSound('success');
       confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
 
-      if (timeTaken <= 3) {
-        localStorage.setItem("ach_speed", "1");
-        checkAchievements();
-      }
-
       if (gameDifficulty === 'online') {
-        showStatus(true, "🎉 SPRÁVNĚ! Rychlá ruka!");
+        showStatus(true, "Správně!");
         if (window.addOnlinePoint) window.addOnlinePoint(100);
         return;
       }
@@ -1595,28 +1563,28 @@
       playedHistory.push({ name: currentLevel.answer, status: true, usedHint: usedHintInCurrentRound });
       updateStats();
 
-      showStatus(true, `🎉 SPRÁVNĚ! +${earned} PTS ${multiplier > 1 ? '(2x COMBO!)' : ''}`);
-      setTimeout(loadNextLevel, 1300);
+      showStatus(true, `Správně! +${earned} PTS ${multiplier > 1 ? '(2x Combo)' : ''}`);
+      setTimeout(loadNextLevel, 1200);
     } else {
       input.value = "";
 
       if (gameDifficulty === 'online') {
         playSound('fail');
         triggerShake();
-        showStatus(false, "❌ ŠPATNĚ, ZKUS TO ZNOVU!");
+        showStatus(false, "Špatně, zkus to znovu!");
         return;
       }
 
       if (gameDifficulty === 'sudden') {
         clearInterval(timerInterval);
         playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
-        endGame("Chybný tip v Sudden Death!");
+        endGame("Konec hry (Sudden Death)");
       } else {
         playSound('fail');
         triggerShake();
         streak = 0;
         updateStats();
-        showStatus(false, "❌ ŠPATNĚ, ZKUS TO ZNOVU!");
+        showStatus(false, "Špatně, zkus znovu!");
       }
     }
   }
@@ -1637,7 +1605,7 @@
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
         if (currentLevel) playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
-        endGame("Vypršel ti časový limit!");
+        endGame("Vypršel časový limit!");
       }
     }, 1000);
   }
@@ -1662,8 +1630,8 @@
       const div = document.createElement("div");
       div.className = "summary-item " + (item.status ? "ok" : "fail");
       
-      let hintTag = item.usedHint ? ` <span style="font-size:0.75rem; color:var(--accent);">(💡 Nápověda)</span>` : '';
-      let statusTag = item.status ? "🟢 Správně" : "🔴 Chyba";
+      let hintTag = item.usedHint ? ` <span style="font-size:0.7rem; color:var(--text-muted);">(💡 Nápověda)</span>` : '';
+      let statusTag = item.status ? "Správně" : "Chyba";
 
       div.innerHTML = `<span>${item.name}${hintTag}</span> <span>${statusTag}</span>`;
       list.appendChild(div);
