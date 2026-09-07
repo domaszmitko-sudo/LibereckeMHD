@@ -351,9 +351,16 @@
       40%, 60% { transform: translate3d(7px, 0, 0); }
     }
 
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .dpmlj-logo { height: 42px; width: auto; object-fit: contain; }
-    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 24px; 
+      flex-wrap: wrap; 
+      gap: 12px;
+    }
+    .dpmlj-logo { height: 36px; width: auto; object-fit: contain; }
+    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .btn-google {
       background: #ffffff;
@@ -632,9 +639,15 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 8px; }
-      .app-card { padding: 16px; border-radius: 20px; }
-      .header { margin-bottom: 16px; }
+      body { padding: 4px; }
+      .app-card { padding: 12px; border-radius: 16px; }
+      .header { margin-bottom: 12px; }
+      .dpmlj-logo { height: 30px; }
+      .btn-google { padding: 6px 10px; font-size: 0.75rem; }
+      .user-profile { padding: 2px 8px; }
+      .user-avatar { width: 24px; height: 24px; }
+      .user-name { font-size: 0.75rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
+      
       .menu-title { font-size: 1.4rem; }
       .btn-mode { padding: 10px 12px; border-radius: 14px; }
       .mode-title { font-size: 0.8rem; }
