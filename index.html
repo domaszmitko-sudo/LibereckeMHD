@@ -833,7 +833,7 @@
   <!-- VÝBĚR KATEGORIE - ŽELEZNICE -->
   <div id="railCategoryScreen" class="menu-screen" style="display: none;">
     <div class="hero-banner">
-      <h1 class="menu-title">Železniční stanice</h1>
+      <h1 class="menu-title">Železniční hádanky</h1>
       <p class="menu-subtitle">Vyber si železniční okruh</p>
     </div>
 
@@ -846,7 +846,18 @@
             <div class="mode-desc">Kompletní balíček všech železničních stanic</div>
           </div>
         </div>
-        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">VLAKY</span>
+        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">STANICE</span>
+      </button>
+
+      <button class="btn-mode" onclick="selectCategory('rail_photo')">
+        <div class="mode-left">
+          <div class="mode-icon-box">📸</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Fotomísta v ČR</div>
+            <div class="mode-desc">Poznávej známe fotofleky podél tratí</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">FOTOMÍSTA</span>
       </button>
     </div>
 
@@ -1192,14 +1203,18 @@
     document.getElementById("mainHomeScreen").style.display = "flex";
   }
 
-  // Seznam zastávek a železničních stanic
+  // Seznam zastávek a železničních stanic / fotomíst
   const allStops = [
+    // --- FOTOMÍSTA V ČR ---
+    { image: "VelkeZbozi.png", answer: "Velké Zboží", hint: "Známý fotoflek u Nymburka, Trať 231 (s Bardotkou/Brejlovcem)", lat: 50.163611, lng: 15.080556, railPhoto: true },
+
     // --- ŽELEZNIČNÍ STANICE ---
     { image: "Jenec.png", answer: "Jeneč", hint: "Okolí Prahy, Trať 120 (s řadou 854)", lat: 50.0886111, lng: 14.2144444, rail: true },
     { image: "TrutnovHLN.png", answer: "Trutnov hlavní nádraží", hint: "Uzlová stanice v Podkrkonoší, Trať 032/040", lat: 50.5638889, lng: 15.9127778, rail: true },
     { image: "CeskaKamenice.png", answer: "Česká Kamenice", hint: "Trať 081 (Děčín – Rumburk), odbočka na muzejní lokálku do Kamenického Šenova", lat: 50.7986111, lng: 14.4172222, rail: true },
+
     // --- MHD LIBEREC ---
-    { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na lince 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
+    { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na linke 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
     { image: "Banskobystricka.png", answer: "Banskobystrická", hint: "Sídliště Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true, tram23: false },
     { image: "Domazlicka.png", answer: "Domažlická", hint: "Františkov, směrem na Ještědskou", lat: 50.7569389, lng: 15.0315181, line22: true, tram23: false },
     { image: "Husitska.png", answer: "Husitská", hint: "Janův Důl / Františkov", lat: 50.7552606, lng: 15.0289144, line22: true, tram23: false },
@@ -1281,8 +1296,10 @@
       activePool = allStops.filter(s => !!s.tram23);
     } else if (selectedCategory === 'rail_all') {
       activePool = allStops.filter(s => !!s.rail);
+    } else if (selectedCategory === 'rail_photo') {
+      activePool = allStops.filter(s => !!s.railPhoto);
     } else {
-      activePool = allStops.filter(s => !s.rail);
+      activePool = allStops.filter(s => !s.rail && !s.railPhoto);
     }
   }
 
@@ -1296,6 +1313,8 @@
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linky 2 a 3 (Tramvaj)";
     } else if (cat === 'rail_all') {
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Železniční stanice";
+    } else if (cat === 'rail_photo') {
+      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Fotomísta v ČR";
     } else {
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Všechny zastávky MHD";
     }
