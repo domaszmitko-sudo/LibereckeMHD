@@ -351,16 +351,14 @@
       40%, 60% { transform: translate3d(7px, 0, 0); }
     }
 
-    .header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 24px; 
-      flex-wrap: wrap; 
-      gap: 12px;
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .dpmlj-logo { height: 42px; width: auto; object-fit: contain; }
+    .dpmlj-logo.logo-guessr {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
     }
-    .dpmlj-logo { height: 36px; width: auto; object-fit: contain; }
-    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
 
     .btn-google {
       background: #ffffff;
@@ -593,7 +591,7 @@
 
     .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
     .go-title { font-size: 2rem; font-weight: 800; color: var(--danger); }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; width: 100%; display: flex; justify-content: space-around; font-family: 'JetBrains Mono', monospace; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; width: 100%; display: flex; justify-around; font-family: 'JetBrains Mono', monospace; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
     .go-stat-val { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
     .go-stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
@@ -639,15 +637,9 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 4px; }
-      .app-card { padding: 12px; border-radius: 16px; }
-      .header { margin-bottom: 12px; }
-      .dpmlj-logo { height: 30px; }
-      .btn-google { padding: 6px 10px; font-size: 0.75rem; }
-      .user-profile { padding: 2px 8px; }
-      .user-avatar { width: 24px; height: 24px; }
-      .user-name { font-size: 0.75rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
-      
+      body { padding: 8px; }
+      .app-card { padding: 16px; border-radius: 20px; }
+      .header { margin-bottom: 16px; }
       .menu-title { font-size: 1.4rem; }
       .btn-mode { padding: 10px 12px; border-radius: 14px; }
       .mode-title { font-size: 0.8rem; }
@@ -667,7 +659,7 @@
 <div class="app-card" id="appCard">
   <div class="header">
     <div class="brand">
-      <img src="logo_velke.png" alt="DPMLJ Logo" class="dpmlj-logo">
+      <img src="logo 2.png" alt="Liberec Guessr Logo" class="dpmlj-logo logo-guessr">
     </div>
     
     <div class="header-actions">
