@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MHD Liberec Guesser Ultra</title>
+  <title>MHD & Železnice Guesser Ultra</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -288,15 +288,15 @@
   <style>
     :root {
       --bg: #07090e;
-      --card-bg: rgba(15, 19, 29, 0.88);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --input-bg: #0b0e14;
+      --card-bg: rgba(13, 17, 23, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --input-bg: rgba(22, 27, 34, 0.7);
       --accent: #ffb703;
-      --accent-glow: rgba(255, 183, 3, 0.35);
+      --accent-glow: rgba(255, 183, 3, 0.25);
       --accent-hover: #ffa000;
-      --text-main: #f8fafc;
-      --text-muted: #64748b;
-      --danger: #ff4757;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --danger: #ff5252;
       --success: #2ed573;
       --purple: #a55eea;
       --p1-color: #00d2d3;
@@ -331,28 +331,28 @@
       background-size: cover;
       background-position: center;
       z-index: -1;
-      opacity: 0.35;
-      filter: brightness(0.7) blur(2px);
+      opacity: 0.3;
+      filter: brightness(0.6) blur(4px);
       transition: opacity 0.6s ease, filter 0.6s ease;
     }
 
-    body.in-game .bg-overlay { opacity: 0.15; filter: brightness(0.4) blur(4px); }
+    body.in-game .bg-overlay { opacity: 0.12; filter: brightness(0.3) blur(6px); }
 
     .app-card {
       background: var(--card-bg);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       border: 1px solid var(--card-border);
-      border-radius: 32px;
-      padding: 32px;
+      border-radius: 28px;
+      padding: 28px;
       width: 100%;
-      max-width: 680px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+      max-width: 640px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0,0,0,0.5);
       position: relative;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .app-card.combo-active { border-color: #ff9f43; box-shadow: 0 0 35px rgba(255, 159, 67, 0.4); }
+    .app-card.combo-active { border-color: #ff9f43; box-shadow: 0 0 35px rgba(255, 159, 67, 0.3); }
 
     .shake { animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
     @keyframes shakeAnim {
@@ -362,34 +362,36 @@
       40%, 60% { transform: translate3d(7px, 0, 0); }
     }
 
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .dpmlj-logo { height: 42px; width: auto; object-fit: contain; }
     .dpmlj-logo.logo-guessr {
-      height: 70px;
+      height: 58px;
       width: auto;
       object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
     }
-    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
 
     .btn-google {
       background: #ffffff;
-      color: #000;
+      color: #0d1117;
       border: none;
       padding: 8px 14px;
       border-radius: 12px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: transform 0.2s;
+      transition: transform 0.2s, background-color 0.2s;
+      box-shadow: 0 4px 12px rgba(255,255,255,0.1);
     }
-    .btn-google:hover { transform: scale(1.03); }
-    .btn-google img { width: 18px; height: 18px; }
+    .btn-google:hover { transform: translateY(-1px); background: #f0f0f0; }
+    .btn-google img { width: 16px; height: 16px; }
 
     .user-profile { display: flex; align-items: center; gap: 8px; background: var(--input-bg); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--card-border); }
-    .user-avatar { width: 28px; height: 28px; border-radius: 50%; }
+    .user-avatar { width: 26px; height: 26px; border-radius: 50%; }
     .user-name { font-size: 0.8rem; font-weight: 700; }
     .btn-logout { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 0.75rem; font-weight: 700; }
 
@@ -397,15 +399,15 @@
       background: var(--input-bg);
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-main);
       cursor: pointer;
-      font-size: 1.1rem;
-      transition: all 0.2s;
+      font-size: 1.05rem;
+      transition: all 0.2s ease;
     }
     .btn-icon:hover { border-color: var(--accent); transform: scale(1.05); }
 
@@ -414,66 +416,67 @@
       font-family: 'JetBrains Mono', monospace;
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      padding: 8px 14px;
-      border-radius: 14px;
-      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.82rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    .timer-badge { color: var(--danger); border-color: rgba(255, 71, 87, 0.2); }
-    .score-badge { color: var(--accent); border-color: rgba(255, 183, 3, 0.2); }
-    .streak-badge { color: #ff9f43; border-color: rgba(255, 159, 67, 0.2); }
+    .timer-badge { color: var(--danger); border-color: rgba(255, 82, 82, 0.25); }
+    .score-badge { color: var(--accent); border-color: rgba(255, 183, 3, 0.25); }
+    .streak-badge { color: #ff9f43; border-color: rgba(255, 159, 67, 0.25); }
 
-    .menu-screen { display: flex; flex-direction: column; gap: 20px; animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .menu-screen { display: flex; flex-direction: column; gap: 18px; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    .hero-banner { text-align: center; }
+    .hero-banner { text-align: center; margin-bottom: 2px; }
     .menu-title {
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       font-weight: 800;
       letter-spacing: -0.5px;
-      background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .menu-subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+    .menu-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
 
     .leaderboard-box {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 16px;
+      padding: 14px 16px;
     }
-    .lb-title { font-size: 0.85rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .lb-list { display: flex; flex-direction: column; gap: 8px; }
-    .lb-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 12px; font-size: 0.85rem; }
-    .lb-rank { font-weight: 800; color: var(--accent); width: 25px; }
-    .lb-avatar { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; }
+    .lb-title { font-size: 0.8rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px; }
+    .lb-list { display: flex; flex-direction: column; gap: 6px; }
+    .lb-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 10px; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.02); }
+    .lb-rank { font-weight: 800; color: var(--accent); width: 22px; font-family: 'JetBrains Mono', monospace; }
+    .lb-avatar { width: 22px; height: 22px; border-radius: 50%; margin-right: 8px; }
     .lb-name { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-score { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--success); }
 
-    .achievements-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .achievements-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     .ach-item {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      padding: 8px 12px;
+      padding: 6px 12px;
       border-radius: 12px;
-      font-size: 0.8rem;
-      opacity: 0.35;
+      font-size: 0.78rem;
+      font-weight: 600;
+      opacity: 0.4;
       filter: grayscale(1);
-      transition: all 0.3s;
+      transition: all 0.3s ease;
     }
-    .ach-item.unlocked { opacity: 1; filter: grayscale(0); border-color: var(--accent); box-shadow: 0 0 10px rgba(255,183,3,0.2); }
+    .ach-item.unlocked { opacity: 1; filter: grayscale(0); border-color: rgba(255, 183, 3, 0.4); background: rgba(255, 183, 3, 0.05); box-shadow: 0 0 12px rgba(255,183,3,0.15); }
 
-    .modes-grid { display: flex; flex-direction: column; gap: 12px; }
+    .modes-grid { display: flex; flex-direction: column; gap: 10px; }
 
     .btn-mode {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 16px 20px;
+      border-radius: 18px;
+      padding: 14px 18px;
       color: var(--text-main);
       cursor: pointer;
       display: flex;
@@ -481,35 +484,58 @@
       align-items: center;
       text-align: left;
       width: 100%;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
     }
-    .btn-mode:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); }
+    .btn-mode::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+    .btn-mode:hover::before { transform: translateX(100%); }
+    .btn-mode:hover { border-color: rgba(255, 183, 3, 0.5); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); background: rgba(30, 37, 48, 0.8); }
 
-    .mode-left { display: flex; align-items: center; gap: 16px; text-align: left; }
+    .mode-left { display: flex; align-items: center; gap: 14px; text-align: left; }
     .mode-text-group { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
     .mode-icon-box {
-      width: 46px; height: 46px;
+      width: 42px; height: 42px;
       flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
+      border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
-    .mode-title { font-weight: 800; font-size: 1rem; text-align: left; }
-    .mode-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; text-align: left; }
+    .mode-title { font-weight: 800; font-size: 0.95rem; text-align: left; letter-spacing: -0.2px; }
+    .mode-desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; text-align: left; }
 
     .mode-tag {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       background: rgba(255, 183, 3, 0.1);
       color: var(--accent);
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 8px;
       border: 1px solid rgba(255, 183, 3, 0.2);
       flex-shrink: 0;
     }
+
+    .info-content {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      text-align: left;
+    }
+    .info-content strong { color: var(--text-main); }
 
     .game-screen { display: none; flex-direction: column; animation: fadeIn 0.3s ease-out; }
 
@@ -517,62 +543,67 @@
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
-      max-height: 420px;
+      max-height: 380px;
       border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--card-border);
-      margin: 0 auto 16px auto;
+      margin: 0 auto 14px auto;
       background: var(--input-bg);
       display: flex;
       justify-content: center;
       align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .image-frame img { width: 100%; height: 100%; object-fit: contain; }
 
-    #mapContainer { width: 100%; height: 280px; border-radius: 20px; border: 1px solid var(--card-border); margin-bottom: 16px; overflow: hidden; display: none; }
+    #mapContainer { width: 100%; height: 260px; border-radius: 18px; border: 1px solid var(--card-border); margin-bottom: 14px; overflow: hidden; display: none; }
 
     .hint-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      letter-spacing: 2px;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
       text-align: center;
       color: var(--accent);
-      margin-bottom: 12px;
-      min-height: 24px;
+      margin-bottom: 10px;
+      min-height: 22px;
+      padding: 6px 12px;
+      background: rgba(255, 183, 3, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 183, 3, 0.15);
     }
 
-    .controls { display: flex; flex-direction: column; gap: 12px; }
+    .controls { display: flex; flex-direction: column; gap: 10px; }
     .input-row { display: flex; gap: 8px; position: relative; }
 
     input[type="text"] {
       flex: 1;
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px 20px;
+      border-radius: 14px;
+      padding: 14px 18px;
       color: var(--text-main);
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-family: inherit;
       outline: none;
       transition: all 0.2s;
     }
     input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
-    .hint-btns { display: flex; gap: 8px; }
+    .hint-btns { display: flex; gap: 6px; }
     .btn-hint {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 0 16px;
+      border-radius: 14px;
+      padding: 0 14px;
       color: var(--accent);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       transition: all 0.2s;
       white-space: nowrap;
     }
-    .btn-hint:hover { border-color: var(--accent); background: rgba(255, 183, 3, 0.05); }
+    .btn-hint:hover { border-color: var(--accent); background: rgba(255, 183, 3, 0.08); }
 
     .btn-submit {
       background: var(--accent);
@@ -580,45 +611,46 @@
       font-family: 'JetBrains Mono', monospace;
       font-weight: 800;
       border: none;
-      border-radius: 16px;
-      padding: 16px;
-      font-size: 1rem;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 0.95rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .btn-submit:hover { background: var(--accent-hover); box-shadow: 0 8px 25px var(--accent-glow); transform: translateY(-1px); }
+    .btn-submit:hover { background: var(--accent-hover); box-shadow: 0 6px 20px var(--accent-glow); transform: translateY(-1px); }
 
-    .status-msg { margin-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; text-align: center; min-height: 24px; font-weight: 700; }
+    .status-msg { margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; text-align: center; min-height: 22px; font-weight: 700; }
     .correct { color: var(--success); }
     .wrong { color: var(--danger); }
 
-    .btn-back { background: transparent; border: none; color: var(--text-muted); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; margin-top: 16px; align-self: center; transition: color 0.2s; }
+    .btn-back { background: transparent; border: none; color: var(--text-muted); font-size: 0.78rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; margin-top: 14px; align-self: center; transition: color 0.2s; font-weight: 700; }
     .btn-back:hover { color: var(--text-main); }
 
-    .mp-container { display: flex; gap: 12px; margin-bottom: 12px; }
-    .mp-box { flex: 1; background: var(--input-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 12px; text-align: center; font-family: 'JetBrains Mono', monospace; transition: all 0.3s; }
-    .mp-score { font-size: 1.5rem; font-weight: 800; }
-    .mp-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .mp-container { display: flex; gap: 10px; margin-bottom: 10px; }
+    .mp-box { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; text-align: center; font-family: 'JetBrains Mono', monospace; transition: all 0.3s; }
+    .mp-score { font-size: 1.4rem; font-weight: 800; }
+    .mp-key { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
 
-    .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
-    .go-title { font-size: 1.8rem; font-weight: 800; color: var(--danger); text-align: center; }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; width: 100%; display: flex; justify-around: font-family: 'JetBrains Mono', monospace; }
+    .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 14px; animation: fadeIn 0.3s ease-out; }
+    .go-title { font-size: 1.6rem; font-weight: 800; color: var(--danger); text-align: center; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; width: 100%; display: flex; justify-content: space-around; font-family: 'JetBrains Mono', monospace; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
-    .go-stat-val { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
-    .go-stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
+    .go-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+    .go-stat-lbl { font-size: 0.72rem; color: var(--text-muted); }
 
-    .summary-list { width: 100%; max-height: 180px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
-    .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 6px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); }
-    .summary-item.ok { border-left: 4px solid var(--success); }
-    .summary-item.fail { border-left: 4px solid var(--danger); }
+    .summary-list { width: 100%; max-height: 160px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); }
+    .summary-item.ok { border-left: 3px solid var(--success); }
+    .summary-item.fail { border-left: 3px solid var(--danger); }
 
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(7, 9, 14, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(7, 9, 14, 0.88);
+      backdrop-filter: blur(14px);
       z-index: 100;
       justify-content: center;
       align-items: center;
@@ -627,43 +659,43 @@
     .modal-box {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 28px;
-      padding: 28px;
+      border-radius: 24px;
+      padding: 24px;
       width: 100%;
-      max-width: 440px;
+      max-width: 420px;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.8);
       animation: fadeIn 0.3s ease-out;
     }
     .room-code-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: var(--accent);
       letter-spacing: 6px;
       background: var(--input-bg);
-      padding: 12px;
-      border-radius: 16px;
+      padding: 10px;
+      border-radius: 14px;
       border: 1px solid var(--card-border);
-      margin: 16px 0;
+      margin: 14px 0;
     }
 
     @media (max-width: 600px) {
-      body { padding: 12px 8px; }
-      .app-card { padding: 20px 16px; border-radius: 24px; }
-      .header { margin-bottom: 16px; }
-      .dpmlj-logo.logo-guessr { height: 50px; }
+      body { padding: 10px 6px; }
+      .app-card { padding: 20px 14px; border-radius: 22px; }
+      .header { margin-bottom: 14px; }
+      .dpmlj-logo.logo-guessr { height: 46px; }
       .menu-title { font-size: 1.6rem; }
-      .btn-mode { padding: 12px 14px; border-radius: 16px; }
-      .mode-title { font-size: 0.9rem; }
-      .mode-desc { font-size: 0.7rem; }
+      .btn-mode { padding: 12px 14px; border-radius: 14px; }
+      .mode-title { font-size: 0.88rem; }
+      .mode-desc { font-size: 0.72rem; }
       .input-row { flex-direction: column; }
       .hint-btns { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
-      .btn-hint { padding: 12px; text-align: center; border-radius: 12px; }
-      #mapContainer { height: 220px; border-radius: 16px; }
-      .image-frame { width: 100%; max-height: 280px; aspect-ratio: 4/3; border-radius: 16px; }
+      .btn-hint { padding: 10px; text-align: center; border-radius: 10px; }
+      #mapContainer { height: 200px; border-radius: 14px; }
+      .image-frame { width: 100%; max-height: 260px; aspect-ratio: 4/3; border-radius: 14px; }
       .stats-bar { gap: 4px; }
-      .badge { padding: 6px 10px; font-size: 0.75rem; }
+      .badge { padding: 6px 8px; font-size: 0.72rem; }
     }
   </style>
 </head>
@@ -690,7 +722,85 @@
     </div>
   </div>
 
-  <div id="categoryScreen" class="menu-screen">
+  <!-- HLAVNÍ ÚVODNÍ OBRAZOVKA -->
+  <div id="mainHomeScreen" class="menu-screen">
+    <div class="hero-banner">
+      <h1 class="menu-title">Vítej v hře</h1>
+      <p class="menu-subtitle">Vyber si z nabídky a hraj</p>
+    </div>
+
+    <div class="modes-grid">
+      <button class="btn-mode" onclick="openRailCategories()">
+        <div class="mode-left">
+          <div class="mode-icon-box">🚂</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Železniční hádanka</div>
+            <div class="mode-desc">Poznej železniční tratě a stanice v ČR</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">NOVÉ</span>
+      </button>
+
+      <button class="btn-mode" onclick="openMhdCategories()">
+        <div class="mode-left">
+          <div class="mode-icon-box">🪪</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Liberecké MHD</div>
+            <div class="mode-desc">Poznávačka zastávek v Libereckém kraji</div>
+          </div>
+        </div>
+        <span class="mode-tag">HRÁT</span>
+      </button>
+
+      <button class="btn-mode" onclick="openAboutProject()">
+        <div class="mode-left">
+          <div class="mode-icon-box">ℹ️</div>
+          <div class="mode-text-group">
+            <div class="mode-title">O projektu</div>
+            <div class="mode-desc">Informace o vývoji a tvůrcích</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">INFO</span>
+      </button>
+
+      <button class="btn-mode" onclick="openSettings()">
+        <div class="mode-left">
+          <div class="mode-icon-box">⚙️</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Nastavení</div>
+            <div class="mode-desc">Zvuky, téma a preference hry</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: var(--purple); border-color: rgba(165,94,234,0.3);">SETUP</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- VÝBĚR KATEGORIE - ŽELEZNICE -->
+  <div id="railCategoryScreen" class="menu-screen" style="display: none;">
+    <div class="hero-banner">
+      <h1 class="menu-title">Železniční stanice</h1>
+      <p class="menu-subtitle">Vyber si železniční okruh</p>
+    </div>
+
+    <div class="modes-grid">
+      <button class="btn-mode" onclick="selectCategory('rail_all')">
+        <div class="mode-left">
+          <div class="mode-icon-box">🚆</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Všechny stanice</div>
+            <div class="mode-desc">Kompletní balíček všech železničních stanic</div>
+          </div>
+        </div>
+        <span class="mode-tag" style="color: #ff9f43; border-color: rgba(255,159,67,0.3);">VLAKY</span>
+      </button>
+    </div>
+
+    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+  </div>
+
+  <!-- VÝBĚR LINKY (MHD LIBEREC) -->
+  <div id="categoryScreen" class="menu-screen" style="display: none;">
     <div class="hero-banner">
       <h1 class="menu-title">Poznej zastávku</h1>
       <p class="menu-subtitle">Vyber si okruh zastávek pro hru</p>
@@ -746,6 +856,47 @@
         <span class="mode-tag" style="color: var(--purple); border-color: rgba(165,94,234,0.3);">VŠECHNO</span>
       </button>
     </div>
+
+    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+  </div>
+
+  <!-- O PROJEKTU -->
+  <div id="aboutScreen" class="menu-screen" style="display: none;">
+    <div class="hero-banner">
+      <h1 class="menu-title">O projektu</h1>
+      <p class="menu-subtitle">MHD Liberec & Železnice Guesser Ultra</p>
+    </div>
+
+    <div class="info-content">
+      <p>Tento projekt je komunitní poznávací hra navržená pro fanoušky veřejné dopravy, MHD a železnice v ČR.</p><br>
+      <p><strong>Autor:</strong> Dominik</p>
+      <p><strong>Cíl:</strong> Otestovat tvé znalosti libereckých autobusových/tramvajových zastávek a železničních stanic v moderním vizuálním kabátě!</p>
+    </div>
+
+    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
+  </div>
+
+  <!-- NASTAVENÍ -->
+  <div id="settingsScreen" class="menu-screen" style="display: none;">
+    <div class="hero-banner">
+      <h1 class="menu-title">Nastavení</h1>
+      <p class="menu-subtitle">Přizpůsob si hru podle sebe</p>
+    </div>
+
+    <div class="modes-grid">
+      <button class="btn-mode" onclick="toggleSound()">
+        <div class="mode-left">
+          <div class="mode-icon-box">🔊</div>
+          <div class="mode-text-group">
+            <div class="mode-title">Zvuky ve hře</div>
+            <div class="mode-desc">Zapnout nebo vypnout zvukové efekty</div>
+          </div>
+        </div>
+        <span class="mode-tag" id="soundStatusTag">ZAPNUTO</span>
+      </button>
+    </div>
+
+    <button class="btn-back" onclick="backToMainHome()">ZPĚT DO HLAVNÍHO MENU</button>
   </div>
 
   <div id="difficultyScreen" class="menu-screen" style="display: none;">
@@ -771,7 +922,7 @@
           <div class="mode-icon-box">🗺️</div>
           <div class="mode-text-group">
             <div class="mode-title">GeoGuessr Mód</div>
-            <div class="mode-desc">Klikni přesně na mapu Liberce podle fotky</div>
+            <div class="mode-desc">Klikni přesně na mapu podle fotky</div>
           </div>
         </div>
         <span class="mode-tag" style="color: #2ed573; border-color: rgba(46,213,115,0.3);">MAPA</span>
@@ -811,16 +962,16 @@
       </button>
     </div>
 
-    <button class="btn-back" onclick="backToCategories()">ZPĚT NA VÝBĚR LINKY</button>
+    <button class="btn-back" onclick="backToCategories()">ZPĚT NA VÝBĚR</button>
   </div>
 
   <div id="gameScreen" class="game-screen">
     <div class="image-frame">
-      <img id="stopImg" src="" alt="Zastávka">
+      <img id="stopImg" src="" alt="Zastávka / Stanice">
     </div>
 
     <div id="mapContainer"></div>
-    <div class="hint-display" id="hintDisplay"></div>
+    <div class="hint-display" id="hintDisplay" style="display: none;"></div>
 
     <div class="mp-container" id="mpContainer" style="display: none;">
       <div class="mp-box" id="p1Box">
@@ -837,10 +988,10 @@
 
     <div class="controls" id="textControls">
       <div class="input-row">
-        <input type="text" id="guessInput" placeholder="Napiš název zastávky..." autocomplete="off">
+        <input type="text" id="guessInput" placeholder="Napiš název..." autocomplete="off">
         <div class="hint-btns">
           <button class="btn-hint" onclick="buyHint('text')" title="-50 bodů">💡 Písmena</button>
-          <button class="btn-hint" onclick="buyHint('zone')" title="-30 bodů">🎯 Okrsek</button>
+          <button class="btn-hint" onclick="buyHint('info')" title="Zadarmo">💡 Nápověda</button>
         </div>
       </div>
       <button class="btn-submit" onclick="submitGuess()">Odeslat tip 🎯</button>
@@ -868,7 +1019,7 @@
       </div>
     </div>
 
-    <p style="font-size: 0.85rem; color: var(--text-muted); align-self: start;">Přehled odehraných zastávek:</p>
+    <p style="font-size: 0.8rem; color: var(--text-muted); align-self: start;">Přehled odehraných položek:</p>
     <div class="summary-list" id="summaryList"></div>
 
     <button class="btn-submit" style="width: 100%;" onclick="startGame(gameDifficulty)">Hrát znovu 🔄</button>
@@ -879,12 +1030,12 @@
 <div class="modal-overlay" id="onlineModal">
   <div class="modal-box">
     <div id="onlineLobbyView">
-      <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">Online 1v1 Místnost</h2>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Vytvoř novou místnost nebo zadej kód od kamoše</p>
+      <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 6px;">Online 1v1 Místnost</h2>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">Vytvoř novou místnost nebo zadej kód od kámoše</p>
 
-      <button class="btn-submit" style="width: 100%; margin-bottom: 16px;" onclick="createOnlineRoom()">Vytvořit novou hru 🎮</button>
+      <button class="btn-submit" style="width: 100%; margin-bottom: 14px;" onclick="createOnlineRoom()">Vytvořit novou hru 🎮</button>
 
-      <div style="margin: 12px 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">NEBO</div>
+      <div style="margin: 10px 0; font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">NEBO</div>
 
       <div class="input-row" style="margin-bottom: 12px;">
         <input type="text" id="roomCodeInput" placeholder="Zadej kód místnosti" style="text-transform: uppercase; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800;">
@@ -894,10 +1045,10 @@
     </div>
 
     <div id="onlineRoomView" style="display: none;">
-      <h2 style="font-size: 1.3rem; font-weight: 800;">Kód tvé místnosti:</h2>
+      <h2 style="font-size: 1.2rem; font-weight: 800;">Kód tvé místnosti:</h2>
       <div class="room-code-display" id="displayRoomCode">----</div>
-      <p style="font-size: 0.85rem; color: var(--accent); font-weight: 700;" id="waitingStatus">Čekám na druhého hráče... ⏳</p>
-      <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 20px;">Odejít z místnosti</button>
+      <p style="font-size: 0.82rem; color: var(--accent); font-weight: 700;" id="waitingStatus">Čekám na druhého hráče... ⏳</p>
+      <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 18px;">Odejít z místnosti</button>
     </div>
   </div>
 </div>
@@ -917,6 +1068,8 @@
   function toggleSound() {
     soundEnabled = !soundEnabled;
     document.getElementById("soundBtn").innerText = soundEnabled ? "🔊" : "🔇";
+    const statusTag = document.getElementById("soundStatusTag");
+    if (statusTag) statusTag.innerText = soundEnabled ? "ZAPNUTO" : "VYPNUTO";
   }
 
   function playSound(type) {
@@ -956,33 +1109,67 @@
     }
   }
 
-  // Zoznam zastávok
+  // NAVIGACE MEZI MENU
+  function openMhdCategories() {
+    document.getElementById("mainHomeScreen").style.display = "none";
+    document.getElementById("categoryScreen").style.display = "flex";
+  }
+
+  function openRailCategories() {
+    document.getElementById("mainHomeScreen").style.display = "none";
+    document.getElementById("railCategoryScreen").style.display = "flex";
+  }
+
+  function openAboutProject() {
+    document.getElementById("mainHomeScreen").style.display = "none";
+    document.getElementById("aboutScreen").style.display = "flex";
+  }
+
+  function openSettings() {
+    document.getElementById("mainHomeScreen").style.display = "none";
+    document.getElementById("settingsScreen").style.display = "flex";
+  }
+
+  function backToMainHome() {
+    document.getElementById("categoryScreen").style.display = "none";
+    document.getElementById("railCategoryScreen").style.display = "none";
+    document.getElementById("aboutScreen").style.display = "none";
+    document.getElementById("settingsScreen").style.display = "none";
+    document.getElementById("mainHomeScreen").style.display = "flex";
+  }
+
+  // Seznam zastávek a železničních stanic (přidána vlastnost "hint" s popisem lokace)
   const allStops = [
-    { image: "Americka.png", answer: "Americká", zone: "Františkov", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
-    { image: "Banskobystricka.png", answer: "Banskobystrická", zone: "Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true, tram23: false },
-    { image: "Domazlicka.png", answer: "Domažlická", zone: "Františkov", lat: 50.7569389, lng: 15.0315181, line22: true, tram23: false },
-    { image: "Husitska.png", answer: "Husitská", zone: "Janův Důl", lat: 50.7552606, lng: 15.0289144, line22: true, tram23: false },
-    { image: "Kavkazska.png", answer: "Kavkazská", zone: "Rochlice / Vesec", lat: 50.7437667, lng: 15.0371819, line22: true, tram23: false },
-    { image: "Kubelikova.png", answer: "Kubelíkova", zone: "Janův Důl", lat: 50.7501717, lng: 15.0328664, line22: true, tram23: false },
-    { image: "Kubelikova2.png", answer: "Kubelíkova", zone: "Janův Důl", lat: 50.7507325, lng: 15.0320417, line22: false, tram23: true },
-    { image: "OCNisa.png", answer: "OC Nisa", zone: "Rochlice / Nákupní zóna", lat: 50.7412378, lng: 15.0516472, line22: true, tram23: false },
-    { image: "OCNisaKino.png", answer: "OC Nisa kino", zone: "Rochlice / Nákupní zóna", lat: 50.7419394, lng: 15.0456361, line22: true, tram23: false },
-    { image: "Prumyslova.png", answer: "Průmyslová", zone: "Františkov / Průmyslová zóna", lat: 50.7430039, lng: 15.0360069, line22: true, tram23: false },
-    { image: "PrumzonaJIH.png", answer: "Průmyslová zóna Jih", zone: "Doubí / Průmyslová zóna", lat: 50.7339478, lng: 15.0417461, line22: true, tram23: false },
-    { image: "USlunnehoPotoka.png", answer: "U Slunného potoka", zone: "Vesec", lat: 50.7359772, lng: 15.0373403, line22: true, tram23: false },
-    { image: "HorniHanychov.png", answer: "Horní Hanychov", zone: "Horní Hanychov", lat: 50.7339811, lng: 15.0118803, line22: false, tram23: true },
-    { image: "Spaleniste.png", answer: "Spáleniště", zone: "Horní Hanychov", lat: 50.7371583, lng: 15.0163333, line22: false, tram23: true },
-    { image: "Hanychovkostel.png", answer: "Hanychov kostel", zone: "Dolní Hanychov", lat: 50.7424583, lng: 15.0232139, line22: false, tram23: true },
-    { image: "Malodoubska.png", answer: "Malodoubská", zone: "Dolní Hanychov", lat: 50.7455889, lng: 15.0270083, line22: false, tram23: true },
-    { image: "DolnyHanychov.png", answer: "Dolní Hanychov", zone: "Dolní Hanychov", lat: 50.7486806, lng: 15.0305889, line22: false, tram23: true },
-    { image: "FrantiskovSidliste.png", answer: "Františkov sídliště", zone: "Františkov", lat: 50.7604217, lng: 15.0322028, line22: true, tram23: false },
-    { image: "FrantiskovSkola.png", answer: "Františkov škola", zone: "Františkov", lat: 50.7619933, lng: 15.0358372, line22: true, tram23: false },
-    { image: "Viadukt.png", answer: "Viadukt", zone: "Jeřáb / Centrum", lat: 50.7648850, lng: 15.0416881, line22: true, tram23: false },
-    { image: "Viadukt2.png", answer: "Viadukt", zone: "Jeřáb / Centrum", lat: 50.7645456, lng: 15.0358372, line22: false, tram23: true },
-    { image: "Krkonosska.png", answer: "Krkonošská", zone: "Františkov", lat: 50.7562000, lng: 15.0368000, line22: false, tram23: true },
-    { image: "StarePekarny.png", answer: "Staré Pekárny", zone: "Janův Důl", lat: 50.7541100, lng: 15.0354200, line22: false, tram23: true },
-    { image: "Vapenka.png", answer: "Vápenka", zone: "Jeřáb", lat: 50.7583300, lng: 15.0415500, line22: false, tram23: true },
-    { image: "JanuvDul.png", answer: "Janův Důl", zone: "Janův Důl", lat: 50.7523100, lng: 15.0339000, line22: false, tram23: true }
+    // --- ŽELEZNIČNÍ STANICE ---
+    { image: "Jenec.png", answer: "Jeneč", hint: "Okolí Prahy, Trať 120 (s řadou 854)", lat: 50.0886111, lng: 14.2144444, rail: true },
+    { image: "TrutnovHLN.png", answer: "Trutnov hlavní nádraží", hint: "Uzlová stanice v Podkrkonoší, Trať 032/040", lat: 50.5638889, lng: 15.9127778, rail: true },
+    { image: "CeskaKamenice.png", answer: "Česká Kamenice", hint: "Trať 081 (Děčín – Rumburk), odbočka na muzejní lokálku do Kamenického Šenova", lat: 50.7986111, lng: 14.4172222, rail: true },
+    // --- MHD LIBEREC ---
+    { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na lince 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
+    { image: "Banskobystricka.png", answer: "Banskobystrická", hint: "Sídliště Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true, tram23: false },
+    { image: "Domazlicka.png", answer: "Domažlická", hint: "Františkov, směrem na Ještědskou", lat: 50.7569389, lng: 15.0315181, line22: true, tram23: false },
+    { image: "Husitska.png", answer: "Husitská", hint: "Janův Důl / Františkov", lat: 50.7552606, lng: 15.0289144, line22: true, tram23: false },
+    { image: "Kavkazska.png", answer: "Kavkazská", hint: "Rozhraní Rochlice a Vesce", lat: 50.7437667, lng: 15.0371819, line22: true, tram23: false },
+    { image: "Kubelikova.png", answer: "Kubelíkova", hint: "Janův Důl (autobusová zastávka)", lat: 50.7501717, lng: 15.0328664, line22: true, tram23: false },
+    { image: "Kubelikova2.png", answer: "Kubelíkova", hint: "Janův Důl (tramvajová zastávka)", lat: 50.7507325, lng: 15.0320417, line22: false, tram23: true },
+    { image: "OCNisa.png", answer: "OC Nisa", hint: "U nákupního centra OC Nisa", lat: 50.7412378, lng: 15.0516472, line22: true, tram23: false },
+    { image: "OCNisaKino.png", answer: "OC Nisa kino", hint: "U multikina u OC Nisa", lat: 50.7419394, lng: 15.0456361, line22: true, tram23: false },
+    { image: "Prumyslova.png", answer: "Průmyslová", hint: "Průmyslová zóna Františkov", lat: 50.7430039, lng: 15.0360069, line22: true, tram23: false },
+    { image: "PrumzonaJIH.png", answer: "Průmyslová zóna Jih", hint: "Průmyslový areál na Jihu směrem na Doubí", lat: 50.7339478, lng: 15.0417461, line22: true, tram23: false },
+    { image: "USlunnehoPotoka.png", answer: "U Slunného potoka", hint: "Sídliště Vesec", lat: 50.7359772, lng: 15.0373403, line22: true, tram23: false },
+    { image: "HorniHanychov.png", answer: "Horní Hanychov", hint: "Konečná tramvají pod Ještědem", lat: 50.7339811, lng: 15.0118803, line22: false, tram23: true },
+    { image: "Spaleniste.png", answer: "Spáleniště", hint: "Tramvajová trať pod Ještědem", lat: 50.7371583, lng: 15.0163333, line22: false, tram23: true },
+    { image: "Hanychovkostel.png", answer: "Hanychov kostel", hint: "U kostela v Hanychově", lat: 50.7424583, lng: 15.0232139, line22: false, tram23: true },
+    { image: "Malodoubska.png", answer: "Malodoubská", hint: "Dolní Hanychov", lat: 50.7455889, lng: 15.0270083, line22: false, tram23: true },
+    { image: "DolnyHanychov.png", answer: "Dolní Hanychov", hint: "Tramvajová smyčka Dolní Hanychov", lat: 50.7486806, lng: 15.0305889, line22: false, tram23: true },
+    { image: "FrantiskovSidliste.png", answer: "Františkov sídliště", hint: "Sídliště Františkov", lat: 50.7604217, lng: 15.0322028, line22: true, tram23: false },
+    { image: "FrantiskovSkola.png", answer: "Františkov škola", hint: "U základní školy na Františkově", lat: 50.7619933, lng: 15.0358372, line22: true, tram23: false },
+    { image: "Viadukt.png", answer: "Viadukt", hint: "Pod železničním viaduktem (autobus)", lat: 50.7648850, lng: 15.0416881, line22: true, tram23: false },
+    { image: "Viadukt2.png", answer: "Viadukt", hint: "Pod železničním viaduktem (tramvaj)", lat: 50.7645456, lng: 15.0358372, line22: false, tram23: true },
+    { image: "Krkonosska.png", answer: "Krkonošská", hint: "Tramvajová trať směrem na Hanychov", lat: 50.7562000, lng: 15.0368000, line22: false, tram23: true },
+    { image: "StarePekarny.png", answer: "Staré Pekárny", hint: "Staré Pekárny v Janově Dole", lat: 50.7541100, lng: 15.0354200, line22: false, tram23: true },
+    { image: "Vapenka.png", answer: "Vápenka", hint: "Trať u Jeřábu", lat: 50.7583300, lng: 15.0415500, line22: false, tram23: true },
+    { image: "JanuvDul.png", answer: "Janův Důl", hint: "Zastávka v Janově Dole", lat: 50.7523100, lng: 15.0339000, line22: false, tram23: true }
   ];
 
   let activePool = [];
@@ -1019,7 +1206,7 @@
 
   function initMap() {
     if (!map) {
-      map = L.map('mapContainer').setView([50.7500, 15.0400], 13);
+      map = L.map('mapContainer').setView([50.0886, 14.2144], 10);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
       }).addTo(map);
@@ -1038,8 +1225,10 @@
       activePool = allStops.filter(s => !!s.line22);
     } else if (selectedCategory === 'tram23') {
       activePool = allStops.filter(s => !!s.tram23);
+    } else if (selectedCategory === 'rail_all') {
+      activePool = allStops.filter(s => !!s.rail);
     } else {
-      activePool = [...allStops];
+      activePool = allStops.filter(s => !s.rail);
     }
   }
 
@@ -1051,17 +1240,24 @@
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linka 22";
     } else if (cat === 'tram23') {
       document.getElementById("selectedCategoryTitle").innerText = "Okruh: Linky 2 a 3 (Tramvaj)";
+    } else if (cat === 'rail_all') {
+      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Železniční stanice";
     } else {
-      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Všechny zastávky";
+      document.getElementById("selectedCategoryTitle").innerText = "Okruh: Všechny zastávky MHD";
     }
 
     document.getElementById("categoryScreen").style.display = "none";
+    document.getElementById("railCategoryScreen").style.display = "none";
     document.getElementById("difficultyScreen").style.display = "flex";
   }
 
   function backToCategories() {
     document.getElementById("difficultyScreen").style.display = "none";
-    document.getElementById("categoryScreen").style.display = "flex";
+    if (selectedCategory.startsWith("rail")) {
+      document.getElementById("railCategoryScreen").style.display = "flex";
+    } else {
+      document.getElementById("categoryScreen").style.display = "flex";
+    }
   }
 
   function startGame(diff) {
@@ -1152,7 +1348,7 @@
   function loadNextLevel() {
     if (activePool.length === 0) {
       clearInterval(timerInterval);
-      endGame("Kolo dokončeno! Poznal jsi všechny zastávky! 🎉");
+      endGame("Kolo dokončeno! Poznal jsi všechny položky! 🎉");
       return;
     }
 
@@ -1163,7 +1359,9 @@
 
     document.getElementById("statusMsg").innerText = "";
     document.getElementById("statusMsg").className = "status-msg";
-    document.getElementById("hintDisplay").innerText = "";
+    const hintElem = document.getElementById("hintDisplay");
+    hintElem.innerText = "";
+    hintElem.style.display = "none";
     appCard.className = "app-card" + (streak >= 3 ? " combo-active" : "");
     
     input.value = "";
@@ -1176,7 +1374,7 @@
     if (polyline && map) map.removeLayer(polyline);
 
     if (gameDifficulty === 'geoguessr') {
-      if (map) map.setView([50.7500, 15.0400], 13);
+      if (map) map.setView([currentLevel.lat, currentLevel.lng], 9);
     } else {
       if (window.innerWidth > 600) input.focus();
     }
@@ -1190,6 +1388,8 @@
 
   function buyHint(type) {
     if (!currentLevel) return;
+
+    const hintElem = document.getElementById("hintDisplay");
 
     if (type === 'text') {
       if (score >= 50) {
@@ -1209,22 +1409,17 @@
             hint += "_ ";
           }
         }
-        document.getElementById("hintDisplay").innerText = hint;
+        hintElem.innerText = hint;
+        hintElem.style.display = "block";
       } else {
         showStatus(false, "⚠️ Na nápovědu potřebuješ 50 bodů!");
       }
-    } else if (type === 'zone') {
-      if (score >= 30) {
-        score -= 30;
-        usedHintInCurrentRound = true;
-        playSound('hint');
-        updateStats();
-        
-        const zoneText = currentLevel.zone || "Neznámá oblast";
-        document.getElementById("hintDisplay").innerText = "📍 Zóna: " + zoneText;
-      } else {
-        showStatus(false, "⚠️ Na nápovědu potřebuješ 30 bodů!");
-      }
+    } else if (type === 'info') {
+      // Nápověda s popisem lokace (zadarmo)
+      playSound('hint');
+      const textHint = currentLevel.hint || "Pro tuto položku není popis k dispozici.";
+      hintElem.innerText = "📍 " + textHint;
+      hintElem.style.display = "block";
     }
   }
 
@@ -1258,9 +1453,9 @@
     map.fitBounds(polyline.getBounds(), {padding: [20, 20]});
 
     let earned = 0;
-    if (dist < 150) earned = 500;
-    else if (dist < 500) earned = 300;
-    else if (dist < 1500) earned = 100;
+    if (dist < 300) earned = 500;
+    else if (dist < 1000) earned = 300;
+    else if (dist < 3000) earned = 100;
 
     if (earned > 0) {
       playSound('success');
@@ -1416,7 +1611,11 @@
     document.body.classList.remove("in-game");
     setRandomBackground();
     
-    document.getElementById("categoryScreen").style.display = "flex";
+    document.getElementById("mainHomeScreen").style.display = "flex";
+    document.getElementById("categoryScreen").style.display = "none";
+    document.getElementById("railCategoryScreen").style.display = "none";
+    document.getElementById("aboutScreen").style.display = "none";
+    document.getElementById("settingsScreen").style.display = "none";
     document.getElementById("difficultyScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "none";
     document.getElementById("gameOverScreen").style.display = "none";
@@ -1430,7 +1629,6 @@
     msg.innerText = text;
   }
 
-  // Odchytávání klávesy Enter i pro mapový mód
   window.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       if (document.getElementById("gameScreen").style.display === "flex") {
