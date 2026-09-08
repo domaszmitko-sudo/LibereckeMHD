@@ -677,7 +677,7 @@
 
     .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
     .go-title { font-size: 1.5rem; font-weight: 400; text-align: center; }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-content: space-around; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-around: space-around; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
     .go-stat-val { font-size: 1.8rem; font-weight: 300; }
     .go-stat-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
@@ -794,8 +794,8 @@
 
       <div class="leaderboard-box">
         <div class="lb-title">
-          <span>Najlepší hráči</span>
-          <span id="highScoreVal" style="color: #fff;">0 PTS</span>
+          <span>Nejlepší hráči</span>
+          <span style="color: var(--text-muted); font-size: 0.68rem; font-weight: 600;">TVOJE MAX: <strong id="highScoreVal" style="color: #fff; font-size: 0.75rem;">0 PTS</strong></span>
         </div>
         <div class="lb-list" id="leaderboardList">
           <div style="font-size:0.8rem; color:var(--text-muted); text-align:center;">Načítám tabulku...</div>
@@ -1199,8 +1199,16 @@
 
   // Seznam zastávek a železničních stanic / fotomíst
   const allStops = [
+    // --- NOVÁ FOTOMÍSTA & STANICE (Pha = Praha) ---
+    { image: "Lvova.png", answer: "Lvová", hint: "Trať 086 pod Lemberkem u Jablonného v Podještědí", lat: 50.789167, lng: 14.793611, railPhoto: true },
+    { image: "Liberec.png", answer: "Liberec", hint: "Známé depo / béčka v Liberci", lat: 50.762458, lng: 15.044952, rail: true },
+    { image: "Jermanice.png", answer: "Jeřmanice", hint: "Fotoflek ve stoupání na Jeřmanice s Ještědem v pozadí (Trať 030)", lat: 50.710833, lng: 15.101389, railPhoto: true },
+    { image: "PhaCakovice.png", answer: "Praha-Čakovice", hint: "Odbočka / stanice Čakovice, Trať 070 směrem na Neratovice", lat: 50.151111, lng: 14.526389, rail: true },
+    { image: "PhaKrejcarek.png", answer: "Praha-Krejčárek", hint: "Estakáda na Krejčárku s výhledem na trať ze Žižkova", lat: 50.099167, lng: 14.471667, railPhoto: true },
+    { image: "PhaSedlec.png", answer: "Praha-Sedlec", hint: "Fotoflek pod skalním masivem v Sedlci u Vltavy (Trať 091)", lat: 50.130833, lng: 14.394167, railPhoto: true },
+
     // --- FOTOMÍSTA V ČR ---
-    { image: "VelkeZbozi.png", answer: "Velké Zboží", hint: "Známý fotoflek u Nymburka, Trať 231 (s Bardotkou/Brejlovcem)", lat: 50.163611, lng: 15.080556, railPhoto: true },
+    { image: "VelkeZbozi.png", answer: "Velké Zboží", hint: "Známý fotoflek u Nymburka, Trať 231", lat: 50.163611, lng: 15.080556, railPhoto: true },
 
     // --- ŽELEZNIČNÍ STANICE ---
     { image: "Jenec.png", answer: "Jeneč", hint: "Okolí Prahy, Trať 120 (s řadou 854)", lat: 50.0886111, lng: 14.2144444, rail: true },
