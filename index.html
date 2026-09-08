@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MHD & Železnice Guesser Ultra</title>
+  <title>MHD & Železniční Guesser</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
@@ -1201,19 +1201,23 @@
   const allStops = [
     // --- NOVÁ FOTOMÍSTA & STANICE (Pha = Praha) ---
     { image: "Lvova.png", answer: "Lvová", hint: "Trať 086 pod Lemberkem u Jablonného v Podještědí", lat: 50.789167, lng: 14.793611, railPhoto: true },
-    { image: "Liberec.png", answer: "Liberec", hint: "Známé depo / béčka v Liberci", lat: 50.762458, lng: 15.044952, rail: true },
+    { image: "Liberec.png", answer: "Liberec", hint: "Známé místo pod přezdívkou béčka", lat: 50.762458, lng: 15.044952, rail: true },
     { image: "Jermanice.png", answer: "Jeřmanice", hint: "Fotoflek ve stoupání na Jeřmanice s Ještědem v pozadí (Trať 030)", lat: 50.710833, lng: 15.101389, railPhoto: true },
-    { image: "PhaCakovice.png", answer: "Praha-Čakovice", hint: "Odbočka / stanice Čakovice, Trať 070 směrem na Neratovice", lat: 50.151111, lng: 14.526389, rail: true },
-    { image: "PhaKrejcarek.png", answer: "Praha-Krejčárek", hint: "Estakáda na Krejčárku s výhledem na trať ze Žižkova", lat: 50.099167, lng: 14.471667, railPhoto: true },
-    { image: "PhaSedlec.png", answer: "Praha-Sedlec", hint: "Fotoflek pod skalním masivem v Sedlci u Vltavy (Trať 091)", lat: 50.130833, lng: 14.394167, railPhoto: true },
-
-    // --- FOTOMÍSTA V ČR ---
+    { image: "PhaCakovice.png", answer: "Praha-Čakovice", hint: "Stanice kde sídlí KŽC, Trať 070", lat: 50.151111, lng: 14.526389, rail: true },
+    { image: "PhaKrejcarek.png", answer: "Krejčárek", hint: "Estakáda na Krejcárku s výhledem na trať ze Žižkova", lat: 50.099167, lng: 14.471667, railPhoto: true },
+    { image: "PhaSedlec.png", answer: "Praha-Sedlec", hint: "Fotoflek pod skalním masivem u Vltavy (Trať 091)", lat: 50.130833, lng: 14.394167, railPhoto: true },
     { image: "VelkeZbozi.png", answer: "Velké Zboží", hint: "Známý fotoflek u Nymburka, Trať 231", lat: 50.163611, lng: 15.080556, railPhoto: true },
+    { image: "PetrovuPrahy.png", answer: "Petrov u Prahy", hint: "Známé skalní fotomísto na Posázavském pacifiku (Trať 210)", lat: 49.882222, lng: 14.433889, railPhoto: true },
+    { image: "PoleradyNadLabem.png", answer: "Polerady nad Labem", hint: "Fotoflek v polích na trati 070 (Praha – Turnov)", lat: 50.218056, lng: 14.620000, railPhoto: true },
+    { image: "Rez.png", answer: "Řež", hint: "Fotoflek v kaňonu Vltavy u skály v ... (Trať 091)", lat: 50.178611, lng: 14.354722, railPhoto: true },
+    { image: "NelahozevesZamek.png", answer: "Nelahozeves zámek", hint: "Fotomísto u zastávky přímo pod zámkem ... u Vltavy", lat: 50.261111, lng: 14.302500, railPhoto: true },
+    { image: "Velvary.png", answer: "Velvary", hint: "Fotomísto na lokálce do ... (Trať 111)", lat: 50.278333, lng: 14.238889, railPhoto: true },
 
     // --- ŽELEZNIČNÍ STANICE ---
     { image: "Jenec.png", answer: "Jeneč", hint: "Okolí Prahy, Trať 120 (s řadou 854)", lat: 50.0886111, lng: 14.2144444, rail: true },
     { image: "TrutnovHLN.png", answer: "Trutnov hlavní nádraží", hint: "Uzlová stanice v Podkrkonoší, Trať 032/040", lat: 50.5638889, lng: 15.9127778, rail: true },
     { image: "CeskaKamenice.png", answer: "Česká Kamenice", hint: "Trať 081 (Děčín – Rumburk), odbočka na muzejní lokálku do Kamenického Šenova", lat: 50.7986111, lng: 14.4172222, rail: true },
+    { image: "DolniBousov.png", answer: "Dolní Bousov", hint: "Stanice na tratích 063 a 064 na Mladoboleslavsku", lat: 50.438889, lng: 15.127500, rail: true },
 
     // --- MHD LIBEREC ---
     { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na linke 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
