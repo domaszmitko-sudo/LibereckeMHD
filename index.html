@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- FIREBASE INTEGRACE S ONLINE MULTIPLAYEREM -->
+  <!-- FIREBASE INTEGRACE S ONLINE MULTIPLAYEREM (LOBBY PRO VÍCE HRÁČŮ) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -148,11 +148,11 @@
       }
     };
 
-    /* ================= ONLINE MULTIPLAYER LOGIKA ================= */
+    /* ================= MULTIPLAYER LOGIKA PRO VÍCE HRÁČŮ ================= */
 
     window.openOnlineModal = () => {
       if (!window.currentUser) {
-        alert("Pro hraní Online 1v1 se musíte nejdříve přihlásit přes Google! 😅");
+        alert("Pro hraní Online Multiplayeru se musíte nejdříve přihlásit přes Google! 😅");
         return;
       }
       document.getElementById("onlineModal").style.display = "flex";
@@ -176,7 +176,7 @@
         currentStopIndex: Math.floor(Math.random() * allStops.length),
         players: {
           [window.currentUser.uid]: {
-            name: window.currentUser.displayName || "Hráč 1",
+            name: window.currentUser.displayName || "Hráč",
             photo: window.currentUser.photoURL || "",
             score: 0
           }
@@ -186,7 +186,8 @@
       document.getElementById("onlineLobbyView").style.display = "none";
       document.getElementById("onlineRoomView").style.display = "block";
       document.getElementById("displayRoomCode").innerText = code;
-      document.getElementById("waitingStatus").innerText = "Čekám na druhého hráče... ⏳";
+      document.getElementById("hostControls").style.display = "block";
+      document.getElementById("waitingStatus").innerText = "Čekám na ostatní hráče v lobby... ⏳";
 
       listenToRoom(code);
     };
@@ -211,19 +212,25 @@
 
       await updateDoc(roomRef, {
         [`players.${window.currentUser.uid}`]: {
-          name: window.currentUser.displayName || "Hráč 2",
+          name: window.currentUser.displayName || "Hráč",
           photo: window.currentUser.photoURL || "",
           score: 0
-        },
-        status: "playing"
+        }
       });
 
       document.getElementById("onlineLobbyView").style.display = "none";
       document.getElementById("onlineRoomView").style.display = "block";
       document.getElementById("displayRoomCode").innerText = code;
-      document.getElementById("waitingStatus").innerText = "Připojování do hry... 🚀";
+      document.getElementById("hostControls").style.display = "none";
+      document.getElementById("waitingStatus").innerText = "Čekám na spuštění hry hostitelem... 🚀";
 
       listenToRoom(code);
+    };
+
+    window.startOnlineGameByHost = async () => {
+      if (!window.currentRoomId) return;
+      const roomRef = doc(db, "rooms", window.currentRoomId);
+      await updateDoc(roomRef, { status: "playing" });
     };
 
     function listenToRoom(code) {
@@ -237,6 +244,8 @@
         if (!snapshot.exists()) return;
         const data = snapshot.data();
 
+        updateLobbyPlayerList(data.players);
+
         if (data.status === "playing") {
           closeOnlineModal();
           if (document.getElementById("gameScreen").style.display !== "flex") {
@@ -247,18 +256,39 @@
       });
     }
 
-    function syncOnlineGame(data) {
-      const players = Object.keys(data.players);
-      const p1Uid = players[0];
-      const p2Uid = players[1];
+    function updateLobbyPlayerList(playersObj) {
+      const pListElem = document.getElementById("lobbyPlayerList");
+      if (!pListElem) return;
+      pListElem.innerHTML = "";
+      
+      Object.keys(playersObj).forEach(uid => {
+        const p = playersObj[uid];
+        const item = document.createElement("div");
+        item.className = "lobby-player-chip";
+        item.innerHTML = `<img src="${p.photo || 'https://via.placeholder.com/20'}"> <span>${p.name}</span>`;
+        pListElem.appendChild(item);
+      });
+    }
 
-      if (p1Uid) {
-        document.getElementById("p1OnlineName").innerText = data.players[p1Uid].name;
-        document.getElementById("p1Score").innerText = data.players[p1Uid].score;
-      }
-      if (p2Uid) {
-        document.getElementById("p2OnlineName").innerText = data.players[p2Uid].name;
-        document.getElementById("p2Score").innerText = data.players[p2Uid].score;
+    function syncOnlineGame(data) {
+      // Dynamické vykreslení leaderboardu přímo ve hře
+      const mpListElem = document.getElementById("mpPlayerList");
+      if (mpListElem) {
+        mpListElem.innerHTML = "";
+        
+        // Seřadit hráče podle skóre
+        const sortedPlayers = Object.entries(data.players).sort((a,b) => b[1].score - a[1].score);
+
+        sortedPlayers.forEach(([uid, pData]) => {
+          const isMe = window.currentUser && uid === window.currentUser.uid;
+          const box = document.createElement("div");
+          box.className = "mp-box" + (isMe ? " is-me" : "");
+          box.innerHTML = `
+            <div style="font-weight:600; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pData.name}</div>
+            <div class="mp-score">${pData.score}</div>
+          `;
+          mpListElem.appendChild(box);
+        });
       }
 
       if (data.currentStopIndex !== undefined && allStops[data.currentStopIndex]) {
@@ -367,7 +397,6 @@
       40%, 60% { transform: translate3d(7px, 0, 0); }
     }
 
-    /* HEADER STYLES LIKE CONVOY BANNER */
     .header { 
       display: flex; 
       justify-content: space-between; 
@@ -468,7 +497,6 @@
     .menu-screen { display: flex; flex-direction: column; gap: 20px; animation: fadeIn 0.4s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* LAYOUT LIKE ETS CONVOY BOARD */
     .hero-layout {
       display: grid;
       grid-template-columns: 1fr 1.2fr;
@@ -567,6 +595,53 @@
       color: var(--text-muted);
     }
     .info-content strong { color: var(--text-main); }
+
+    /* STYLY PRO STATISTIKY & ACHIEVEMENTS */
+    .stats-grid-overview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-card-val { font-size: 1.4rem; font-weight: 700; color: var(--accent-yellow); font-family: 'JetBrains Mono', monospace; }
+    .stat-card-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .achieve-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.4;
+      filter: grayscale(1);
+      transition: all 0.3s ease;
+    }
+    .achieve-card.unlocked {
+      opacity: 1;
+      filter: grayscale(0);
+      background: rgba(155, 81, 224, 0.1);
+      border-color: var(--accent-purple);
+    }
+    .achieve-icon { font-size: 1.6rem; }
+    .achieve-info { display: flex; flex-direction: column; }
+    .achieve-name { font-size: 0.8rem; font-weight: 700; color: #fff; }
+    .achieve-desc { font-size: 0.68rem; color: var(--text-muted); }
 
     /* GAME SCREEN */
     .game-screen { 
@@ -670,10 +745,24 @@
     .btn-back { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; padding: 6px; align-self: center; transition: color 0.2s; letter-spacing: 0.5px; }
     .btn-back:hover { color: var(--text-main); }
 
-    .mp-container { display: flex; gap: 10px; margin-bottom: 4px; }
-    .mp-box { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; text-align: center; }
-    .mp-score { font-size: 1.4rem; font-weight: 300; margin-top: 2px; }
-    .mp-key { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+    /* MULTIPLAYER BAR PRO VÍCE HRÁČŮ */
+    .mp-container { 
+      display: flex; 
+      gap: 8px; 
+      margin-bottom: 4px; 
+      overflow-x: auto; 
+      padding-bottom: 4px; 
+    }
+    .mp-box { 
+      flex: 0 0 110px; 
+      background: var(--input-bg); 
+      border: 1px solid var(--card-border); 
+      border-radius: 12px; 
+      padding: 8px; 
+      text-align: center; 
+    }
+    .mp-box.is-me { border-color: var(--accent-yellow); background: rgba(242, 201, 76, 0.05); }
+    .mp-score { font-size: 1.2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
 
     .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
     .go-title { font-size: 1.5rem; font-weight: 400; text-align: center; }
@@ -704,7 +793,7 @@
       border-radius: 20px;
       padding: 24px;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.8);
       animation: fadeIn 0.3s ease-out;
@@ -722,6 +811,27 @@
       margin: 14px 0;
     }
 
+    .lobby-player-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin: 12px 0;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .lobby-player-chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lobby-player-chip img { width: 16px; height: 16px; border-radius: 50%; }
+
     /* RESPONSIVE OPTIMIZATION */
     @media (max-width: 680px) {
       body { padding: 8px; }
@@ -735,6 +845,7 @@
       .input-row { flex-direction: column; gap: 8px; }
       .hint-btns { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
       .btn-hint { padding: 10px; text-align: center; }
+      .achievements-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -826,6 +937,17 @@
         <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
       </button>
 
+      <button class="btn-mode" onclick="openStatsAndAchievements()">
+        <div class="mode-left">
+          <span class="pill-badge pill-yellow">Statistiky</span>
+          <div class="mode-text-group">
+            <div class="mode-title">Úspěchy 🏆</div>
+            <div class="mode-desc">Tvoje odznaky a podrobné statistiky</div>
+          </div>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
+      </button>
+
       <button class="btn-mode" onclick="openAboutProject()">
         <div class="mode-left">
           <span class="pill-badge pill-yellow">Info</span>
@@ -848,6 +970,36 @@
         <span style="font-size: 0.8rem; color: var(--text-muted);">→</span>
       </button>
     </div>
+  </div>
+
+  <!-- STATISTIKY A ACHIEVEMENTS OBRAZOVKA -->
+  <div id="statsScreen" class="menu-screen" style="display: none;">
+    <div>
+      <span class="pill-badge pill-yellow" style="margin-bottom: 8px;">Profil Hráče</span>
+      <h2 style="font-size: 1.6rem; font-weight: 400;">Statistiky & Odznaky</h2>
+    </div>
+
+    <div class="stats-grid-overview">
+      <div class="stat-card-item">
+        <div class="stat-card-val" id="statTotalGames">0</div>
+        <div class="stat-card-lbl">Odehráno her</div>
+      </div>
+      <div class="stat-card-item">
+        <div class="stat-card-val" id="statCorrectGuesses">0</div>
+        <div class="stat-card-lbl">Uhádnutých fotek</div>
+      </div>
+      <div class="stat-card-item">
+        <div class="stat-card-val" id="statAccuracy">0%</div>
+        <div class="stat-card-lbl">Přesnost</div>
+      </div>
+    </div>
+
+    <p style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Získané Odznaky:</p>
+    <div class="achievements-grid" id="achievementsList">
+      <!-- Generováno dynamicky přes JS -->
+    </div>
+
+    <button class="btn-back" onclick="backToMainHome()">← ZPĚT DO MENU</button>
   </div>
 
   <!-- VÝBĚR KATEGORIE - ŽELEZNICE -->
@@ -1013,11 +1165,11 @@
       <button class="btn-mode" onclick="openOnlineModal()">
         <div class="mode-left">
           <div class="mode-text-group">
-            <div class="mode-title">Online 1v1</div>
-            <div class="mode-desc">Vytvoř místnost a vyzvi kámoše přes kód</div>
+            <div class="mode-title">Online Lobby</div>
+            <div class="mode-desc">Vytvoř místnost pro neomezeně lidí a hrajte naráz</div>
           </div>
         </div>
-        <span class="pill-badge pill-yellow">Online</span>
+        <span class="pill-badge pill-yellow">Multiplayer</span>
       </button>
     </div>
 
@@ -1032,17 +1184,8 @@
     <div id="mapContainer"></div>
     <div class="hint-display" id="hintDisplay" style="display: none;"></div>
 
-    <div class="mp-container" id="mpContainer" style="display: none;">
-      <div class="mp-box" id="p1Box">
-        <div style="font-weight:600; font-size:0.8rem;" id="p1OnlineName">HRÁČ 1</div>
-        <div class="mp-score" id="p1Score">0</div>
-        <div class="mp-key" id="p1Subtext">SKÓRE</div>
-      </div>
-      <div class="mp-box" id="p2Box">
-        <div style="font-weight:600; font-size:0.8rem;" id="p2OnlineName">HRÁČ 2</div>
-        <div class="mp-score" id="p2Score">0</div>
-        <div class="mp-key" id="p2Subtext">SKÓRE</div>
-      </div>
+    <div class="mp-container" id="mpPlayerList" style="display: none;">
+      <!-- Dynamicky vkládané kartičky připojených hráčů v MP -->
     </div>
 
     <div class="controls" id="textControls">
@@ -1089,24 +1232,35 @@
 <div class="modal-overlay" id="onlineModal">
   <div class="modal-box">
     <div id="onlineLobbyView">
-      <h2 style="font-size: 1.3rem; font-weight: 500; margin-bottom: 6px;">Online 1v1 Místnost</h2>
+      <h2 style="font-size: 1.3rem; font-weight: 500; margin-bottom: 6px;">Online Lobby</h2>
       <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px;">Vytvoř novou místnost nebo zadej kód</p>
 
-      <button class="btn-submit" style="width: 100%; margin-bottom: 12px;" onclick="createOnlineRoom()">Vytvořit novou hru</button>
+      <button class="btn-submit" style="width: 100%; margin-bottom: 12px;" onclick="createOnlineRoom()">Vytvořit novou místnost</button>
 
       <div style="margin: 10px 0; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">nebo</div>
 
       <div class="input-row" style="margin-bottom: 12px;">
         <input type="text" id="roomCodeInput" placeholder="Zadej kód" style="text-transform: uppercase; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">
       </div>
-      <button class="btn-submit" style="width: 100%; background: var(--accent-purple); color:#fff;" onclick="joinOnlineRoom()">Připojit se do hry</button>
+      <button class="btn-submit" style="width: 100%; background: var(--accent-purple); color:#fff;" onclick="joinOnlineRoom()">Připojit se do lobby</button>
       <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 10px;">ZRUŠIT</button>
     </div>
 
     <div id="onlineRoomView" style="display: none;">
-      <h2 style="font-size: 1rem; font-weight: 400; color: var(--text-muted);">Kód místnosti:</h2>
+      <h2 style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">Kód místnosti:</h2>
       <div class="room-code-display" id="displayRoomCode">----</div>
-      <p style="font-size: 0.8rem; color: var(--accent-yellow);" id="waitingStatus">Čekám na druhého hráče... ⏳</p>
+      
+      <p style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Připojení hráči:</p>
+      <div class="lobby-player-list" id="lobbyPlayerList">
+        <!-- Zde se dynamicky zobrazí ikonky připojených lidí -->
+      </div>
+
+      <p style="font-size: 0.8rem; color: var(--accent-yellow); margin-bottom: 12px;" id="waitingStatus">Čekám v lobby... ⏳</p>
+
+      <div id="hostControls" style="display: none;">
+        <button class="btn-submit" style="background: var(--success); color:#fff; width: 100%;" onclick="startOnlineGameByHost()">SPUSTIT HRU PRO VŠECHNY 🚀</button>
+      </div>
+
       <button class="btn-back" onclick="closeOnlineModal()" style="margin-top: 14px;">Odejít</button>
     </div>
   </div>
@@ -1189,17 +1343,23 @@
     document.getElementById("settingsScreen").style.display = "flex";
   }
 
+  function openStatsAndAchievements() {
+    document.getElementById("mainHomeScreen").style.display = "none";
+    document.getElementById("statsScreen").style.display = "flex";
+    renderStatsAndAchievements();
+  }
+
   function backToMainHome() {
     document.getElementById("categoryScreen").style.display = "none";
     document.getElementById("railCategoryScreen").style.display = "none";
     document.getElementById("aboutScreen").style.display = "none";
     document.getElementById("settingsScreen").style.display = "none";
+    document.getElementById("statsScreen").style.display = "none";
     document.getElementById("mainHomeScreen").style.display = "flex";
   }
 
   // Seznam zastávek a železničních stanic / fotomíst
   const allStops = [
-    // --- NOVÁ FOTOMÍSTA & STANICE (Pha = Praha) ---
     { image: "Lvova.png", answer: "Lvová", hint: "Trať 086 pod Lemberkem u Jablonného v Podještědí", lat: 50.789167, lng: 14.793611, railPhoto: true },
     { image: "Liberec.png", answer: "Liberec", hint: "Známé místo pod přezdívkou béčka", lat: 50.762458, lng: 15.044952, rail: true },
     { image: "Jermanice.png", answer: "Jeřmanice", hint: "Fotoflek ve stoupání na Jeřmanice s Ještědem v pozadí (Trať 030)", lat: 50.710833, lng: 15.101389, railPhoto: true },
@@ -1222,8 +1382,6 @@
     { image: "TrutnovHLN.png", answer: "Trutnov hlavní nádraží", hint: "Uzlová stanice v Podkrkonoší, Trať 032/040", lat: 50.5638889, lng: 15.9127778, rail: true },
     { image: "CeskaKamenice.png", answer: "Česká Kamenice", hint: "Trať 081 (Děčín – Rumburk), odbočka na muzejní lokálku do Kamenického Šenova", lat: 50.7986111, lng: 14.4172222, rail: true },
     { image: "DolniBousov.png", answer: "Dolní Bousov", hint: "Stanice na tratích 063 a 064 na Mladoboleslavsku", lat: 50.438889, lng: 15.127500, rail: true },
-
-    // --- MHD LIBEREC ---
     { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na linke 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
     { image: "Banskobystricka.png", answer: "Banskobystrická", hint: "Sídliště Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true, tram23: false },
     { image: "Domazlicka.png", answer: "Domažlická", hint: "Františkov, směrem na Ještědskou", lat: 50.7569389, lng: 15.0315181, line22: true, tram23: false },
@@ -1251,6 +1409,15 @@
     { image: "JanuvDul.png", answer: "Janův Důl", hint: "Zastávka v Janově Dole", lat: 50.7523100, lng: 15.0339000, line22: false, tram23: true }
   ];
 
+  /* DEFINICE ACHIEVEMENTS (ODZNAKŮ) */
+  const achievements = [
+    { id: "first_win", name: "První Zastávka", desc: "Uhádni úspěšně svou první fotku", icon: "🚏" },
+    { id: "streak_5", name: "V Rytmu MHD", desc: "Získej streak 5 správných odpovíd v řadě", icon: "🔥" },
+    { id: "streak_10", name: "Šotouš Master", desc: "Získej streak 10 správných odpovíd v řadě", icon: "👑" },
+    { id: "total_50", name: "Zkušený Cestující", desc: "Uhádni celkově 50 fotek", icon: "🎫" },
+    { id: "rail_god", name: "Kolejový Král", desc: "Uhádni 15 železničních fotofleků", icon: "🚂" }
+  ];
+
   let activePool = [];
   let selectedCategory = 'all';
   let gameDifficulty = 'classic';
@@ -1271,10 +1438,59 @@
   const input = document.getElementById("guessInput");
   const stopImg = document.getElementById("stopImg");
 
-  let highScore = localStorage.getItem("liberec_guesser_highscore") || 0;
+  // STATISTIKY Z LOCAL STORAGE
+  let highScore = parseInt(localStorage.getItem("liberec_guesser_highscore") || 0);
   let totalGamesPlayed = parseInt(localStorage.getItem("liberec_guesser_games") || 0);
-  
+  let totalCorrectGuesses = parseInt(localStorage.getItem("liberec_guesser_correct") || 0);
+  let totalGuesses = parseInt(localStorage.getItem("liberec_guesser_total_guesses") || 0);
+  let unlockedAchievements = JSON.parse(localStorage.getItem("liberec_guesser_achievements") || "[]");
+
   document.getElementById("highScoreVal").innerText = highScore + " PTS";
+
+  function saveStats() {
+    localStorage.setItem("liberec_guesser_highscore", highScore);
+    localStorage.setItem("liberec_guesser_games", totalGamesPlayed);
+    localStorage.setItem("liberec_guesser_correct", totalCorrectGuesses);
+    localStorage.setItem("liberec_guesser_total_guesses", totalGuesses);
+    localStorage.setItem("liberec_guesser_achievements", JSON.stringify(unlockedAchievements));
+  }
+
+  function unlockAchievement(id) {
+    if (!unlockedAchievements.includes(id)) {
+      unlockedAchievements.push(id);
+      saveStats();
+      const ach = achievements.find(a => a.id === id);
+      if (ach) {
+        showStatus(true, `🏆 ODZNAK ODEMKNUT: ${ach.name}!`);
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.5 } });
+      }
+    }
+  }
+
+  function renderStatsAndAchievements() {
+    document.getElementById("statTotalGames").innerText = totalGamesPlayed;
+    document.getElementById("statCorrectGuesses").innerText = totalCorrectGuesses;
+    
+    const accuracy = totalGuesses > 0 ? Math.round((totalCorrectGuesses / totalGuesses) * 100) : 0;
+    document.getElementById("statAccuracy").innerText = accuracy + "%";
+
+    const list = document.getElementById("achievementsList");
+    list.innerHTML = "";
+
+    achievements.forEach(ach => {
+      const isUnlocked = unlockedAchievements.includes(ach.id);
+      const card = document.createElement("div");
+      card.className = "achieve-card" + (isUnlocked ? " unlocked" : "");
+      card.innerHTML = `
+        <div class="achieve-icon">${ach.icon}</div>
+        <div class="achieve-info">
+          <div class="achieve-name">${ach.name}</div>
+          <div class="achieve-desc">${ach.desc}</div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
 
   function initMap() {
     if (!map) {
@@ -1343,7 +1559,7 @@
     resetActivePool();
 
     totalGamesPlayed++;
-    localStorage.setItem("liberec_guesser_games", totalGamesPlayed);
+    saveStats();
 
     updateStats();
     
@@ -1356,7 +1572,7 @@
       document.getElementById("mapContainer").style.display = "block";
       document.getElementById("mapControls").style.display = "block";
       document.getElementById("textControls").style.display = "none";
-      document.getElementById("mpContainer").style.display = "none";
+      document.getElementById("mpPlayerList").style.display = "none";
       document.getElementById("statsBar").style.display = "flex";
       document.getElementById("timerBadge").style.display = "flex";
       initMap();
@@ -1365,14 +1581,12 @@
       document.getElementById("mapControls").style.display = "none";
       document.getElementById("textControls").style.display = "flex";
       document.getElementById("statsBar").style.display = "none";
-      document.getElementById("mpContainer").style.display = "flex";
-      document.getElementById("p1Subtext").innerText = "SKÓRE";
-      document.getElementById("p2Subtext").innerText = "SKÓRE";
+      document.getElementById("mpPlayerList").style.display = "flex";
     } else {
       document.getElementById("mapContainer").style.display = "none";
       document.getElementById("mapControls").style.display = "none";
       document.getElementById("textControls").style.display = "flex";
-      document.getElementById("mpContainer").style.display = "none";
+      document.getElementById("mpPlayerList").style.display = "none";
       document.getElementById("statsBar").style.display = "flex";
 
       if (gameDifficulty === 'chill') {
@@ -1399,13 +1613,18 @@
 
     if (score > highScore) {
       highScore = score;
-      localStorage.setItem("liberec_guesser_highscore", highScore);
+      saveStats();
       document.getElementById("highScoreVal").innerText = highScore + " PTS";
 
       if (window.saveHighScoreToCloud) {
         window.saveHighScoreToCloud(highScore);
       }
     }
+
+    // Kontrola achívů
+    if (streak >= 5) unlockAchievement("streak_5");
+    if (streak >= 10) unlockAchievement("streak_10");
+    if (totalCorrectGuesses >= 50) unlockAchievement("total_50");
   }
 
   function loadNextLevel() {
@@ -1507,6 +1726,7 @@
     }
 
     clearInterval(timerInterval);
+    totalGuesses++;
     const target = [currentLevel.lat, currentLevel.lng];
     const dist = getDistanceInMeters(userSelectedCoords.lat, userSelectedCoords.lng, target[0], target[1]);
 
@@ -1525,7 +1745,10 @@
       score += earned;
       streak++;
       if (streak > maxStreak) maxStreak = streak;
+      totalCorrectGuesses++;
+      unlockAchievement("first_win");
       playedHistory.push({ name: currentLevel.answer, status: true, usedHint: usedHintInCurrentRound });
+      saveStats();
       updateStats();
       showStatus(true, `Odchylka: ${dist}m! +${earned} PTS`);
     } else {
@@ -1533,6 +1756,7 @@
       triggerShake();
       streak = 0;
       playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
+      saveStats();
       updateStats();
       showStatus(false, `Vedle o ${dist}m! (${currentLevel.answer})`);
     }
@@ -1556,12 +1780,22 @@
     const userGuess = normalizeText(input.value);
     if (!userGuess) return;
 
+    totalGuesses++;
     const correctAnswer = normalizeText(currentLevel.answer);
 
     if (userGuess === correctAnswer) {
       clearInterval(timerInterval);
       playSound('success');
       confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
+      
+      totalCorrectGuesses++;
+      unlockAchievement("first_win");
+      if (currentLevel.railPhoto || currentLevel.rail) {
+        let railCount = parseInt(localStorage.getItem("liberec_guesser_rail_count") || 0) + 1;
+        localStorage.setItem("liberec_guesser_rail_count", railCount);
+        if (railCount >= 15) unlockAchievement("rail_god");
+      }
+      saveStats();
 
       if (gameDifficulty === 'online') {
         showStatus(true, "Správně!");
@@ -1583,6 +1817,7 @@
       setTimeout(loadNextLevel, 1200);
     } else {
       input.value = "";
+      saveStats();
 
       if (gameDifficulty === 'online') {
         playSound('fail');
@@ -1672,6 +1907,7 @@
     document.getElementById("railCategoryScreen").style.display = "none";
     document.getElementById("aboutScreen").style.display = "none";
     document.getElementById("settingsScreen").style.display = "none";
+    document.getElementById("statsScreen").style.display = "none";
     document.getElementById("difficultyScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "none";
     document.getElementById("gameOverScreen").style.display = "none";
