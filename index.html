@@ -169,14 +169,11 @@
       window.currentRoomId = code;
       window.isHost = true;
 
-      const pool = activePool.length > 0 ? activePool : allStops;
-      const initialStopIndex = allStops.indexOf(pool[Math.floor(Math.random() * pool.length)]);
-
       const roomRef = doc(db, "rooms", code);
       await setDoc(roomRef, {
         status: "waiting",
         host: window.currentUser.uid,
-        currentStopIndex: initialStopIndex >= 0 ? initialStopIndex : 0,
+        currentStopIndex: Math.floor(Math.random() * allStops.length),
         players: {
           [window.currentUser.uid]: {
             name: window.currentUser.displayName || "Hráč",
@@ -307,12 +304,11 @@
       if (!window.currentRoomId || !window.currentUser) return;
       const roomRef = doc(db, "rooms", window.currentRoomId);
       const pool = activePool.length > 0 ? activePool : allStops;
-      const randomItem = pool[Math.floor(Math.random() * pool.length)];
-      const nextIndex = allStops.indexOf(randomItem);
+      const nextIndex = Math.floor(Math.random() * pool.length);
 
       await updateDoc(roomRef, {
         [`players.${window.currentUser.uid}.score`]: increment(pts),
-        currentStopIndex: nextIndex >= 0 ? nextIndex : 0
+        currentStopIndex: nextIndex
       });
     };
   </script>
@@ -588,6 +584,20 @@
     .mode-title { font-weight: 600; font-size: 0.95rem; letter-spacing: -0.2px; }
     .mode-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
+    .warning-box-inline {
+      margin-top: 6px;
+      background: rgba(235, 87, 87, 0.15);
+      border: 1px solid rgba(235, 87, 87, 0.4);
+      color: #ff8080;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .info-content {
       background: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -769,7 +779,7 @@
 
     .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
     .go-title { font-size: 1.5rem; font-weight: 400; text-align: center; }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-style: space-around; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-around: space-around; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
     .go-stat-val { font-size: 1.8rem; font-weight: 300; }
     .go-stat-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
@@ -1170,6 +1180,9 @@
           <div class="mode-text-group">
             <div class="mode-title">Online Lobby</div>
             <div class="mode-desc">Vytvoř místnost pro neomezeně lidí a hrajte naráz</div>
+            <div class="warning-box-inline">
+              ⚠️ <strong>POZOR:</strong> Multiplayer není dodělán a obsahuje chyby!
+            </div>
           </div>
         </div>
         <span class="pill-badge pill-yellow">Multiplayer</span>
@@ -1391,7 +1404,7 @@
     { image: "Zampach.png", answer: "Žampach", hint: "Kamenitý viadukt Žampach u Jílového u Prahy na Posázavském pacifiku (Trať 210)", lat: 49.887222, lng: 14.492500, railPhoto: true },
     { image: "OdbockaBabin.png", answer: "Odbočka Babín", hint: "Známá odbočka u Nymburka na koridoru (Trať 231)", lat: 50.170278, lng: 15.048056, railPhoto: true },
     { image: "Chotutice.png", answer: "Chotutice", hint: "Malebná zastávka na lokálce Pečky – Kouřim (Trať 012)", lat: 50.052778, lng: 14.981111, rail: true },
-    { image: "MBmesto.png", answer: "Mladá Boleslav město", hint: "Zastávka v centrum města", lat: 50.415278, lng: 14.912778, rail: true },
+    { image: "MBmesto.png", answer: "Mladá Boleslav město", hint: "Zastávka v centru města", lat: 50.415278, lng: 14.912778, rail: true },
     { image: "MnisekuLiberce.png", answer: "Mníšek u Liberce", hint: "Známé místo na focení manipuláků z Frýdlantu do Liberce", lat: 50.8430383, lng: 15.0835264, railPhoto: true },
     { image: "Choratice.png", answer: "Choratice", hint: "Místo mezi Vilsnicemi a Dobkovicemi", lat: 50.732500, lng: 14.205833, railPhoto: true },
     { image: "Strekov.png", answer: "Střekov", hint: "Místo pod hradem Střekov", lat: 50.947222, lng: 14.051944, railPhoto: true },
