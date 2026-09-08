@@ -164,39 +164,21 @@
       document.getElementById("onlineModal").style.display = "none";
     };
 
-    // Pomocná funkce na zamíchání pole (Fisher-Yates)
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
     window.createOnlineRoom = async () => {
       const code = Math.random().toString(36).substring(2, 6).toUpperCase();
       window.currentRoomId = code;
       window.isHost = true;
 
-      // Získáme vybraný okruh/kategorii ze solovky
-      const pool = getCategoryPool(selectedCategory);
-      const shuffledIndices = shuffleArray(pool.map((_, idx) => idx));
-
       const roomRef = doc(db, "rooms", code);
       await setDoc(roomRef, {
         status: "waiting",
         host: window.currentUser.uid,
-        category: selectedCategory,
-        playlist: shuffledIndices,
-        currentRound: 0,
-        maxRounds: Math.min(10, shuffledIndices.length),
+        currentStopIndex: Math.floor(Math.random() * allStops.length),
         players: {
           [window.currentUser.uid]: {
             name: window.currentUser.displayName || "Hráč",
             photo: window.currentUser.photoURL || "",
-            score: 0,
-            hasGuessed: false
+            score: 0
           }
         }
       });
@@ -232,8 +214,7 @@
         [`players.${window.currentUser.uid}`]: {
           name: window.currentUser.displayName || "Hráč",
           photo: window.currentUser.photoURL || "",
-          score: 0,
-          hasGuessed: false
+          score: 0
         }
       });
 
@@ -271,8 +252,6 @@
             startGame('online');
           }
           syncOnlineGame(data);
-        } else if (data.status === "ended") {
-          endGame("Online Hra Dokončena!");
         }
       });
     }
@@ -291,8 +270,6 @@
       });
     }
 
-    let lastSyncedRound = -1;
-
     function syncOnlineGame(data) {
       const mpListElem = document.getElementById("mpPlayerList");
       if (mpListElem) {
@@ -305,51 +282,20 @@
           const box = document.createElement("div");
           box.className = "mp-box" + (isMe ? " is-me" : "");
           box.innerHTML = `
-            <div style="font-weight:600; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pData.name} ${pData.hasGuessed ? '✅' : ''}</div>
+            <div style="font-weight:600; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pData.name}</div>
             <div class="mp-score">${pData.score}</div>
           `;
           mpListElem.appendChild(box);
         });
       }
 
-      const pool = getCategoryPool(data.category || selectedCategory);
-
-      if (data.currentRound !== undefined && data.currentRound !== lastSyncedRound) {
-        lastSyncedRound = data.currentRound;
-
-        if (data.playlist && data.playlist[data.currentRound] !== undefined) {
-          const stopIdx = data.playlist[data.currentRound];
-          currentLevel = pool[stopIdx];
-          if (currentLevel) {
-            stopImg.src = currentLevel.image;
-            document.getElementById("statusMsg").innerText = "";
-            document.getElementById("statusMsg").className = "status-msg";
-            document.getElementById("guessInput").value = "";
-            document.getElementById("guessInput").disabled = false;
-            document.querySelector(".btn-submit").disabled = false;
-          }
-        }
-      }
-
-      // Kontrola jestli všichni uhádli v daném kole (řeší Host)
-      if (window.isHost && data.players) {
-        const playerUids = Object.keys(data.players);
-        const allDone = playerUids.every(uid => data.players[uid].hasGuessed);
-
-        if (allDone && playerUids.length > 0) {
-          const nextRound = data.currentRound + 1;
-          const roomRef = doc(db, "rooms", window.currentRoomId);
-
-          if (nextRound >= data.maxRounds) {
-            updateDoc(roomRef, { status: "ended" });
-          } else {
-            const resets = {};
-            playerUids.forEach(uid => {
-              resets[`players.${uid}.hasGuessed`] = false;
-            });
-            resets.currentRound = nextRound;
-            updateDoc(roomRef, resets);
-          }
+      if (data.currentStopIndex !== undefined && allStops[data.currentStopIndex]) {
+        if (!currentLevel || currentLevel !== allStops[data.currentStopIndex]) {
+          currentLevel = allStops[data.currentStopIndex];
+          stopImg.src = currentLevel.image;
+          document.getElementById("statusMsg").innerText = "";
+          document.getElementById("statusMsg").className = "status-msg";
+          document.getElementById("guessInput").value = "";
         }
       }
     }
@@ -357,13 +303,12 @@
     window.addOnlinePoint = async (pts) => {
       if (!window.currentRoomId || !window.currentUser) return;
       const roomRef = doc(db, "rooms", window.currentRoomId);
-
-      document.getElementById("guessInput").disabled = true;
-      document.querySelector(".btn-submit").disabled = true;
+      const pool = activePool.length > 0 ? activePool : allStops;
+      const nextIndex = Math.floor(Math.random() * pool.length);
 
       await updateDoc(roomRef, {
         [`players.${window.currentUser.uid}.score`]: increment(pts),
-        [`players.${window.currentUser.uid}.hasGuessed`]: true
+        currentStopIndex: nextIndex
       });
     };
   </script>
@@ -527,7 +472,7 @@
     .pill-purple { background: var(--accent-purple); color: #fff; }
     .pill-pink { background: var(--accent-pink); color: #fff; }
     .pill-yellow { background: var(--accent-yellow); color: #000; }
-    .pill-green { background: var(--accent-green); color: #fff; }
+    .pill-green { background: var(--success); color: #fff; }
 
     .stats-bar { display: flex; gap: 12px; }
     .stat-block {
@@ -820,7 +765,7 @@
 
     .game-over-screen { display: none; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.3s ease-out; }
     .go-title { font-size: 1.5rem; font-weight: 400; text-align: center; }
-    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-around: space-around; }
+    .go-stats { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; width: 100%; display: flex; justify-content: space-around; }
     .go-stat-item { display: flex; flex-direction: column; align-items: center; }
     .go-stat-val { font-size: 1.8rem; font-weight: 300; }
     .go-stat-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
@@ -1078,7 +1023,7 @@
         <div class="mode-left">
           <div class="mode-text-group">
             <div class="mode-title">Fotomísta v ČR</div>
-            <div class="mode-desc">Poznávej známe fotofleky podél tratí</div>
+            <div class="mode-desc">Poznávej známá fotomísta podél tratí</div>
           </div>
         </div>
         <span class="pill-badge pill-yellow">Fotofleky</span>
@@ -1438,18 +1383,17 @@
     { image: "DolniBousov.png", answer: "Dolní Bousov", hint: "Stanice na tratích 063 a 064 na Mladoboleslavsku", lat: 50.438889, lng: 15.127500, rail: true },
     { image: "Hlizov.png", answer: "Hlízov", hint: "Fotoflek u Kolína/Kutné Hory na hlavním koridoru (Trať 230)", lat: 49.983056, lng: 15.297500, railPhoto: true },
     { image: "Celakovice.png", answer: "Čelákovice", hint: "Poblíž stanice Čelákovice na trati 070 / 231", lat: 50.162222, lng: 14.750556, railPhoto: true },
-    { image: "PhaKyje2.png", answer: "Praha-Kyje", hint: "Známý fotoflek u Kyjského rybníka v Praze (Trať 010)", lat: 50.088889, lng: 14.536944, railPhoto: true },
     { image: "Rokytka.png", answer: "Rokytka", hint: "Fotoflek u říčky Rokytky v Praze u Libně / Hloubětína", lat: 50.103056, lng: 14.500833, railPhoto: true },
     { image: "Zampach.png", answer: "Žampach", hint: "Kamenitý viadukt Žampach u Jílového u Prahy na Posázavském pacifiku (Trať 210)", lat: 49.887222, lng: 14.492500, railPhoto: true },
     { image: "OdbockaBabin.png", answer: "Odbočka Babín", hint: "Známá odbočka u Nymburka na koridoru (Trať 231)", lat: 50.170278, lng: 15.048056, railPhoto: true },
     { image: "Chotutice.png", answer: "Chotutice", hint: "Malebná zastávka na lokálce Pečky – Kouřim (Trať 012)", lat: 50.052778, lng: 14.981111, rail: true },
-    { image: "MBmesto.png", answer: "Mladá Boleslav město", hint: "Zastávka v centru města", lat: 50.052778, lng: 14.981111, rail: true },
+    { image: "MBmesto.png", answer: "Mladá Boleslav město", hint: "Zastávka v centru města", lat: 50.415278, lng: 14.912778, rail: true },
     { image: "MnisekuLiberce.png", answer: "Mníšek u Liberce", hint: "Známé místo na focení manipuláků z Frýdlantu do Liberce", lat: 50.8430383, lng: 15.0835264, railPhoto: true },
-    { image: "Choratice.png", answer: "Choratice", hint: "Místo mezi Vilsnicemi a Dobkovicemi", lat: 50.052778, lng: 14.981111, railPhoto: true },
-    { image: "Strekov.png", answer: "Střekov", hint: "Místo pod hradem ...", lat: 50.052778, lng: 14.981111, railPhoto: true },
-    { image: "Lovosice.png", answer: "Lovosice", hint: "Fotoflek v ... ze silničního mostu. Vede tudy trať 090", lat: 50.052778, lng: 14.981111, railPhoto: true },
+    { image: "Choratice.png", answer: "Choratice", hint: "Místo mezi Vilsnicemi a Dobkovicemi", lat: 50.732500, lng: 14.205833, railPhoto: true },
+    { image: "Strekov.png", answer: "Střekov", hint: "Místo pod hradem Střekov", lat: 50.947222, lng: 14.051944, railPhoto: true },
+    { image: "Lovosice.png", answer: "Lovosice", hint: "Fotoflek ze silničního mostu. Vede tudy trať 090", lat: 50.515278, lng: 14.050556, railPhoto: true },
 
-    { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na linke 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
+    { image: "Americka.png", answer: "Americká", hint: "Poblíž Františkova na lince 22", lat: 50.7578125, lng: 15.0337831, line22: true, tram23: false },
     { image: "Banskobystricka.png", answer: "Banskobystrická", hint: "Sídliště Rochlice", lat: 50.7458306, lng: 15.0357114, line22: true, tram23: false },
     { image: "Domazlicka.png", answer: "Domažlická", hint: "Františkov, směrem na Ještědskou", lat: 50.7569389, lng: 15.0315181, line22: true, tram23: false },
     { image: "Husitska.png", answer: "Husitská", hint: "Janův Důl / Františkov", lat: 50.7552606, lng: 15.0289144, line22: true, tram23: false },
@@ -1465,7 +1409,7 @@
     { image: "Spaleniste.png", answer: "Spáleniště", hint: "Tramvajová trať pod Ještědem", lat: 50.7371583, lng: 15.0163333, line22: false, tram23: true },
     { image: "Hanychovkostel.png", answer: "Hanychov kostel", hint: "U kostela v Hanychově", lat: 50.7424583, lng: 15.0232139, line22: false, tram23: true },
     { image: "Malodoubska.png", answer: "Malodoubská", hint: "Dolní Hanychov", lat: 50.7455889, lng: 15.0270083, line22: false, tram23: true },
-    { image: "DolnyHanychov.png", answer: "Dolní Hanychov", hint: "Tramvajová smyčka Dolní Hanychov", lat: 50.7486806, lng: 15.0305889, line22: false, tram23: true },
+    { image: "DolniHanychov.png", answer: "Dolní Hanychov", hint: "Tramvajová smyčka Dolní Hanychov", lat: 50.7486806, lng: 15.0305889, line22: false, tram23: true },
     { image: "FrantiskovSidliste.png", answer: "Františkov sídliště", hint: "Sídliště Františkov", lat: 50.7604217, lng: 15.0322028, line22: true, tram23: false },
     { image: "FrantiskovSkola.png", answer: "Františkov škola", hint: "U základní školy na Františkově", lat: 50.7619933, lng: 15.0358372, line22: true, tram23: false },
     { image: "Viadukt.png", answer: "Viadukt", hint: "Pod železničním viaduktem (autobus)", lat: 50.7648850, lng: 15.0416881, line22: true, tram23: false },
@@ -1575,22 +1519,18 @@
     setTimeout(() => { map.invalidateSize(); }, 200);
   }
 
-  function getCategoryPool(category) {
-    if (category === 'line22') {
-      return allStops.filter(s => !!s.line22);
-    } else if (category === 'tram23') {
-      return allStops.filter(s => !!s.tram23);
-    } else if (category === 'rail_all') {
-      return allStops.filter(s => !!s.rail);
-    } else if (category === 'rail_photo') {
-      return allStops.filter(s => !!s.railPhoto);
-    } else {
-      return allStops.filter(s => !s.rail && !s.railPhoto);
-    }
-  }
-
   function resetActivePool() {
-    activePool = getCategoryPool(selectedCategory);
+    if (selectedCategory === 'line22') {
+      activePool = allStops.filter(s => !!s.line22);
+    } else if (selectedCategory === 'tram23') {
+      activePool = allStops.filter(s => !!s.tram23);
+    } else if (selectedCategory === 'rail_all') {
+      activePool = allStops.filter(s => !!s.rail);
+    } else if (selectedCategory === 'rail_photo') {
+      activePool = allStops.filter(s => !!s.railPhoto);
+    } else {
+      activePool = allStops.filter(s => !s.rail && !s.railPhoto);
+    }
   }
 
   function selectCategory(cat) {
@@ -1692,7 +1632,6 @@
       }
     }
 
-    // Kontrola achívů
     if (streak >= 5) unlockAchievement("streak_5");
     if (streak >= 10) unlockAchievement("streak_10");
     if (totalCorrectGuesses >= 50) unlockAchievement("total_50");
@@ -1869,43 +1808,51 @@
       saveStats();
 
       if (gameDifficulty === 'online') {
-        showStatus(true, "Správně! Čekám na ostatní...");
+        showStatus(true, "Správně!");
         if (window.addOnlinePoint) window.addOnlinePoint(100);
         return;
       }
 
       streak++;
       if (streak > maxStreak) maxStreak = streak;
-      score += 100 + (streak * 10);
+      
+      const multiplier = streak >= 3 ? 2 : 1;
+      const earned = (100 + (streak * 20)) * multiplier;
+      score += earned;
+      
       playedHistory.push({ name: currentLevel.answer, status: true, usedHint: usedHintInCurrentRound });
       updateStats();
 
-      showStatus(true, "Správně! 🎉");
+      showStatus(true, `Správně! +${earned} PTS ${multiplier > 1 ? '(2x Combo)' : ''}`);
       setTimeout(loadNextLevel, 1200);
-
     } else {
-      playSound('fail');
-      triggerShake();
+      input.value = "";
+      saveStats();
 
       if (gameDifficulty === 'online') {
-        showStatus(false, "Špatně! Zkus to znovu...");
+        playSound('fail');
+        triggerShake();
+        showStatus(false, "Špatně, zkus to znovu!");
         return;
       }
 
       if (gameDifficulty === 'sudden') {
         clearInterval(timerInterval);
         playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
-        endGame("Konec hry (Sudden Death)!");
-        return;
+        endGame("Konec hry (Sudden Death)");
+      } else {
+        playSound('fail');
+        triggerShake();
+        streak = 0;
+        updateStats();
+        showStatus(false, "Špatně, zkus znovu!");
       }
-
-      streak = 0;
-      playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
-      updateStats();
-
-      showStatus(false, `Špatně! Správně bylo: ${currentLevel.answer}`);
-      setTimeout(loadNextLevel, 1800);
     }
+  }
+
+  function triggerShake() {
+    appCard.classList.add("shake");
+    setTimeout(() => appCard.classList.remove("shake"), 400);
   }
 
   function startTimer() {
@@ -1914,91 +1861,90 @@
       timeLeft--;
       document.getElementById("timer").innerText = timeLeft;
 
-      if (timeLeft <= 5) playSound('tick');
+      if (timeLeft <= 5 && timeLeft > 0) playSound('tick');
 
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
-        playSound('fail');
-        triggerShake();
-
-        if (gameDifficulty === 'sudden') {
-          playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
-          endGame("Vypršel čas!");
-          return;
-        }
-
-        streak = 0;
-        playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
-        updateStats();
-
-        showStatus(false, `Vypršel čas! Správně bylo: ${currentLevel.answer}`);
-        setTimeout(loadNextLevel, 1800);
+        if (currentLevel) playedHistory.push({ name: currentLevel.answer, status: false, usedHint: usedHintInCurrentRound });
+        endGame("Vypršel časový limit!");
       }
     }, 1000);
   }
 
-  function showStatus(isSuccess, message) {
-    const msgElem = document.getElementById("statusMsg");
-    msgElem.innerText = message;
-    msgElem.className = "status-msg " + (isSuccess ? "correct" : "wrong");
-  }
-
-  function triggerShake() {
-    appCard.classList.add("shake");
-    setTimeout(() => { appCard.classList.remove("shake"); }, 400);
-  }
-
-  function endGame(titleText) {
-    clearInterval(timerInterval);
-    document.body.classList.remove("in-game");
+  function endGame(reason) {
+    if (reason.includes("dokončeno")) {
+      playSound('success');
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+    } else {
+      playSound('fail');
+      triggerShake();
+    }
     
-    document.getElementById("gameScreen").style.display = "none";
-    document.getElementById("gameOverScreen").style.display = "flex";
-
-    document.getElementById("goTitle").innerText = titleText;
     document.getElementById("goScore").innerText = score;
     document.getElementById("goStreak").innerText = maxStreak;
-
+    document.getElementById("goTitle").innerText = reason || "Konec hry!";
+    
     const list = document.getElementById("summaryList");
     list.innerHTML = "";
-
+    
     playedHistory.forEach(item => {
-      const row = document.createElement("div");
-      row.className = "summary-item " + (item.status ? "ok" : "fail");
-      row.innerHTML = `
-        <span>${item.name} ${item.usedHint ? '💡' : ''}</span>
-        <span>${item.status ? '✓' : '✗'}</span>
-      `;
-      list.appendChild(row);
+      const div = document.createElement("div");
+      div.className = "summary-item " + (item.status ? "ok" : "fail");
+      
+      let hintTag = item.usedHint ? ` <span style="font-size:0.7rem; color:var(--text-muted);">(💡 Nápověda)</span>` : '';
+      let statusTag = item.status ? "Správně" : "Chyba";
+
+      div.innerHTML = `<span>${item.name}${hintTag}</span> <span>${statusTag}</span>`;
+      list.appendChild(div);
     });
+
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "flex";
   }
 
   function backToMenu() {
     clearInterval(timerInterval);
-    document.body.classList.remove("in-game");
-
     if (window.unsubscribeRoom) {
       window.unsubscribeRoom();
       window.unsubscribeRoom = null;
     }
-
-    document.getElementById("gameScreen").style.display = "none";
-    document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("difficultyScreen").style.display = "none";
+    
+    document.body.classList.remove("in-game");
+    setRandomBackground();
+    
+    document.getElementById("mainHomeScreen").style.display = "flex";
     document.getElementById("categoryScreen").style.display = "none";
     document.getElementById("railCategoryScreen").style.display = "none";
     document.getElementById("aboutScreen").style.display = "none";
     document.getElementById("settingsScreen").style.display = "none";
     document.getElementById("statsScreen").style.display = "none";
-    
-    document.getElementById("mainHomeScreen").style.display = "flex";
+    document.getElementById("difficultyScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("statsBar").style.display = "none";
+    appCard.className = "app-card";
   }
 
-  input.addEventListener("keyup", function(event) {
-    if (event.key === "Enter") {
-      submitGuess();
+  function showStatus(isCorrect, text) {
+    const msg = document.getElementById("statusMsg");
+    msg.className = "status-msg " + (isCorrect ? "correct" : "wrong");
+    msg.innerText = text;
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      if (document.getElementById("gameScreen").style.display === "flex") {
+        if (gameDifficulty === 'geoguessr') {
+          submitMapGuess();
+        }
+      }
     }
   });
+
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") submitGuess();
+  });
 </script>
+
 </body>
 </html>
